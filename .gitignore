@@ -3,7 +3,7 @@ bin
 eclipse
 *.launch
 .settings
-*.metadata
-*.recommenders
+.metadata
+.recommenders
 .classpath
 .project

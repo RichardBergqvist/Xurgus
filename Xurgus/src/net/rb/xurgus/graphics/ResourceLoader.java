@@ -21,7 +21,9 @@ import net.rb.xurgus.graphics.model.RawModel;
 
 /**
  * 
- * @author Richard
+ * @since In-Development 0.1
+ * @author Richard Bergqvist
+ * @category Graphics
  *
  */
 public class ResourceLoader {
@@ -30,19 +32,35 @@ public class ResourceLoader {
 	private List<Integer> vbos = new ArrayList<Integer>();
 	private List<Integer> textures = new ArrayList<Integer>();
 
-	public RawModel loadToVAO(float[] positions, float[] textureCoords, int[] indices) {
+	public RawModel loadToVAO(float[] positions, float[] textureCoords, float[] normals, int[] indices) {
 		int vaoID = createVAO();
 		bindIndicesBuffer(indices);
 		storeDataInAttributeList(0, 3, positions);
 		storeDataInAttributeList(1, 2, textureCoords);
+		storeDataInAttributeList(2, 3, normals);
 		unbindVAO();
 		return new RawModel(vaoID, indices.length);
 	}
 	
-	public int loadTexture(String fileName) {
+	public int loadTexture(String name) {
 		Texture texture = null;
 		try {
-			texture = TextureLoader.getTexture("PNG", new FileInputStream("res/textures/" + fileName + ".png"));
+			texture = TextureLoader.getTexture("PNG", new FileInputStream("res/textures/" + name + ".png"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		int textureID = texture.getTextureID();
+		textures.add(textureID);
+		return textureID;
+	}
+
+	public int loadTexture(String name, String location) {
+		Texture texture = null;
+		try {
+			texture = TextureLoader.getTexture("PNG", new FileInputStream("res/" + location + "/" + name + ".png"));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

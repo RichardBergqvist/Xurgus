@@ -9,25 +9,26 @@ import org.lwjgl.opengl.PixelFormat;
 
 /**
  * 
- * @author Richard
+ * @since In-Development 0.1
+ * @author Richard Bergqvist
+ * @category Graphics
  *
  */
 public class DisplayManager {
 
 	private static final String TITLE = "Xurgus";
+	private static final String VERSION = "In-Development 0.3";
 	private static final int WIDTH = 1280;
 	private static final int HEIGHT = 720;
 	private static final int FPS_CAP = 100;
 	
 	public static void create() {
-		ContextAttribs attribs = new ContextAttribs(3, 2);
-		attribs.withForwardCompatible(true);
-		attribs.withProfileCore(true);
+		ContextAttribs attribs = new ContextAttribs(3, 2).withForwardCompatible(true).withProfileCore(true);
 		
 		try {
 			Display.setDisplayMode(new DisplayMode(WIDTH, HEIGHT));
 			Display.create(new PixelFormat(), attribs);
-			Display.setTitle(TITLE);
+			Display.setTitle(TITLE + " | " + VERSION);
 		} catch (LWJGLException e) {
 			e.printStackTrace();
 		}

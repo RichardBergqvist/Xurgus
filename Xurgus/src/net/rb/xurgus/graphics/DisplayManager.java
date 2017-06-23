@@ -1,6 +1,7 @@
 package net.rb.xurgus.graphics;
 
 import static org.lwjgl.opengl.GL11.*;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.ContextAttribs;
 import org.lwjgl.opengl.Display;
@@ -9,18 +10,16 @@ import org.lwjgl.opengl.PixelFormat;
 
 /**
  * 
- * @since In-Development 0.1
  * @author Richard Bergqvist
- * @category Graphics
  *
  */
 public class DisplayManager {
 
-	private static final String TITLE = "Xurgus";
-	private static final String VERSION = "In-Development 0.3";
+	public static final String TITLE = "Xurgus";
+	public static final String VERSION = "In-Dev 0.0.1";
 	private static final int WIDTH = 1280;
 	private static final int HEIGHT = 720;
-	private static final int FPS_CAP = 100;
+	private static final int FPS_CAP = 120;
 	
 	public static void create() {
 		ContextAttribs attribs = new ContextAttribs(3, 2).withForwardCompatible(true).withProfileCore(true);
@@ -28,9 +27,11 @@ public class DisplayManager {
 		try {
 			Display.setDisplayMode(new DisplayMode(WIDTH, HEIGHT));
 			Display.create(new PixelFormat(), attribs);
-			Display.setTitle(TITLE + " | " + VERSION);
+			Display.setTitle(TITLE + "  |  " + VERSION);
 		} catch (LWJGLException e) {
 			e.printStackTrace();
+			System.err.println("Could not create display!");
+			System.exit(-1);
 		}
 		
 		glViewport(0, 0, WIDTH, HEIGHT);

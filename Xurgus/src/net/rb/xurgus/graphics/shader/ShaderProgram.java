@@ -14,9 +14,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 /**
  * 
- * @since In-Development 0.1
  * @author Richard Bergqvist
- * @category Graphics
  *
  */
 public abstract class ShaderProgram {
@@ -40,12 +38,6 @@ public abstract class ShaderProgram {
 		getAllUniformLocations();
 	}
 	
-	protected abstract void getAllUniformLocations();
-	
-	protected int getUniformLocation(String name) {
-		return glGetUniformLocation(programID, name);
-	}
-	
 	public void start() {
 		glUseProgram(programID);
 	}
@@ -54,21 +46,17 @@ public abstract class ShaderProgram {
 		glUseProgram(0);
 	}
 	
-	public void clean() {
-		stop();
-		glDetachShader(programID, vertexShaderID);
-		glDetachShader(programID, fragmentShaderID);
-		glDeleteShader(vertexShaderID);
-		glDeleteShader(fragmentShaderID);
-		glDeleteProgram(programID);
-	}
-	
 	protected abstract void bindAttributes();
 	
 	protected void bindAttribute(int attribute, String name) {
 		glBindAttribLocation(programID, attribute, name);
 	}
 	
+	protected abstract void getAllUniformLocations();
+	
+	protected int getUniformLocation(String name) {
+		return glGetUniformLocation(programID, name);
+	}
 	
 	protected void loadFloat(int location, float value) {
 		glUniform1f(location, value);
@@ -80,8 +68,10 @@ public abstract class ShaderProgram {
 	
 	protected void loadBoolean(int location, boolean value) {
 		float toLoad = 0;
+		
 		if (value)
 			toLoad = 1;
+		
 		glUniform1f(location, toLoad);
 	}
 	
@@ -91,28 +81,46 @@ public abstract class ShaderProgram {
 		glUniformMatrix4(location, false, matrixBuffer);
 	}
 	
-	private static int loadShader(String file, int type) {
+	private static int loadShader(String name, int type) {
 		StringBuilder shaderSource = new StringBuilder();
+		String extension = "";
+		
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(file));
+			if (type == GL_VERTEX_SHADER)
+				extension = ".vs";
+			if (type == GL_FRAGMENT_SHADER)
+				extension = ".fs";
+				
+			BufferedReader reader = new BufferedReader(new FileReader("res/shaders/" + name + extension));
 			String line;
-			while((line = reader.readLine()) != null)
+			
+			while ((line = reader.readLine()) != null)
 				shaderSource.append(line).append("\n");
 			reader.close();
 		} catch (IOException e) {
-			System.err.println("Could not read shader file!");
 			e.printStackTrace();
-			System.exit(-1);
-		}
-		int shaderID = glCreateShader(type);
-		glShaderSource(shaderID, shaderSource);
-		glCompileShader(shaderID);
-		if (glGetShader(shaderID, GL_COMPILE_STATUS) == GL_FALSE) {
-			System.out.println(glGetShaderInfoLog(shaderID, 500));
-			System.err.println("Could not compile shader.");
+			System.err.println("Could not read shader file: " + name);
 			System.exit(-1);
 		}
 		
+		int shaderID = glCreateShader(type);
+		glShaderSource(shaderID, shaderSource);
+		glCompileShader(shaderID);
+		if (glGetShaderi(shaderID, GL_COMPILE_STATUS) == GL_FALSE) {
+			System.out.println(glGetShaderInfoLog(shaderID, 500));
+			System.err.println("Could not compile shader: " + name);
+			System.exit(1);
+		}
+		
 		return shaderID;
+	}
+	
+	public void clean() {
+		stop();
+		glDetachShader(programID, vertexShaderID);
+		glDetachShader(programID, fragmentShaderID);
+		glDeleteShader(vertexShaderID);
+		glDeleteShader(fragmentShaderID);
+		glDeleteProgram(programID);
 	}
 }

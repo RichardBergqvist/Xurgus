@@ -6,9 +6,7 @@ import net.rb.xurgus.graphics.model.TexturedModel;
 
 /**
  * 
- * @since In-Development 0.2
  * @author Richard Bergqvist
- * @category Entity
  *
  */
 public class Entity {
@@ -19,7 +17,6 @@ public class Entity {
 	private float scale;
 	
 	public Entity(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
-		super();
 		this.model = model;
 		this.position = position;
 		this.rotX = rotX;
@@ -39,11 +36,11 @@ public class Entity {
 		this.rotY += dy;
 		this.rotZ += dz;
 	}
-
+	
 	public void setModel(TexturedModel model) {
 		this.model = model;
 	}
-
+	
 	public TexturedModel getModel() {
 		return model;
 	}
@@ -55,7 +52,7 @@ public class Entity {
 	public Vector3f getPosition() {
 		return position;
 	}
-
+	
 	public void setRotX(float rotX) {
 		this.rotX = rotX;
 	}

@@ -8,6 +8,11 @@ package net.rb.xurgus.graphics.texture;
 public class ModelTexture {
 
 	private int textureID;
+	private float shineDamper = 1;
+	private float reflectivity = 0;
+	
+	private boolean hasTransparency = false;
+	private boolean useFakeLighting = false;
 	
 	public ModelTexture(int textureID) {
 		this.textureID = textureID;
@@ -15,5 +20,37 @@ public class ModelTexture {
 	
 	public int getTextureID() {
 		return textureID;
+	}
+	
+	public void setShineDamper(float shineDamper) {
+		this.shineDamper = shineDamper;
+	}
+	
+	public float getShineDamper() {
+		return shineDamper;
+	}
+	
+	public void setReflectivity(float reflectivity) {
+		this.reflectivity = reflectivity;
+	}
+	
+	public float getReflectivity() {
+		return reflectivity;
+	}
+	
+	public void setHasTransparency(boolean hasTransparency) {
+		this.hasTransparency = hasTransparency;
+	}
+	
+	public boolean getHasTransparency() {
+		return hasTransparency;
+	}
+	
+	public void setUseFakeLighting(boolean useFakeLighting) {
+		this.useFakeLighting = useFakeLighting;
+	}
+	
+	public boolean getUseFakeLighting() {
+		return useFakeLighting;
 	}
 }

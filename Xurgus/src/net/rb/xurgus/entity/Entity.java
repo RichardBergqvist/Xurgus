@@ -2,7 +2,7 @@ package net.rb.xurgus.entity;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import net.rb.xurgus.graphics.model.TexturedModel;
+import net.rb.xurgus.model.TexturedModel;
 
 /**
  * 

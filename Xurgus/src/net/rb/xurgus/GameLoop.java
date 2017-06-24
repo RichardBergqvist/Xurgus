@@ -1,17 +1,23 @@
 package net.rb.xurgus;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 
 import net.rb.xurgus.entity.Camera;
 import net.rb.xurgus.entity.Entity;
+import net.rb.xurgus.entity.Light;
 import net.rb.xurgus.graphics.DisplayManager;
-import net.rb.xurgus.graphics.RenderManager;
-import net.rb.xurgus.graphics.model.Model;
-import net.rb.xurgus.graphics.model.TexturedModel;
-import net.rb.xurgus.graphics.shader.StaticShader;
+import net.rb.xurgus.graphics.rendering.RenderManager;
 import net.rb.xurgus.graphics.texture.ModelTexture;
+import net.rb.xurgus.model.Model;
+import net.rb.xurgus.model.TexturedModel;
+import net.rb.xurgus.util.OBJLoader;
 import net.rb.xurgus.util.ResourceLoader;
+import net.rb.xurgus.world.terrain.Terrain;
 
 /**
  * 
@@ -22,110 +28,64 @@ public class GameLoop {
 
 	public static void main(String[] args) {
 		DisplayManager.create();
-		
 		ResourceLoader loader = new ResourceLoader();
-		StaticShader shader = new StaticShader();
-		RenderManager renderManager = new RenderManager(shader); 
 		
-		float[] vertices = {			
-				-0.5f,0.5f,-0.5f,	
-				-0.5f,-0.5f,-0.5f,	
-				0.5f,-0.5f,-0.5f,	
-				0.5f,0.5f,-0.5f,		
-				
-				-0.5f,0.5f,0.5f,	
-				-0.5f,-0.5f,0.5f,	
-				0.5f,-0.5f,0.5f,	
-				0.5f,0.5f,0.5f,
-				
-				0.5f,0.5f,-0.5f,	
-				0.5f,-0.5f,-0.5f,	
-				0.5f,-0.5f,0.5f,	
-				0.5f,0.5f,0.5f,
-				
-				-0.5f,0.5f,-0.5f,	
-				-0.5f,-0.5f,-0.5f,	
-				-0.5f,-0.5f,0.5f,	
-				-0.5f,0.5f,0.5f,
-				
-				-0.5f,0.5f,0.5f,
-				-0.5f,0.5f,-0.5f,
-				0.5f,0.5f,-0.5f,
-				0.5f,0.5f,0.5f,
-				
-				-0.5f,-0.5f,0.5f,
-				-0.5f,-0.5f,-0.5f,
-				0.5f,-0.5f,-0.5f,
-				0.5f,-0.5f,0.5f
-				
-		};
+		Model model = OBJLoader.loadModel("tree", loader);
 		
-		float[] textureCoordinates = {
-				
-				0,0,
-				0,1,
-				1,1,
-				1,0,			
-				0,0,
-				0,1,
-				1,1,
-				1,0,			
-				0,0,
-				0,1,
-				1,1,
-				1,0,
-				0,0,
-				0,1,
-				1,1,
-				1,0,
-				0,0,
-				0,1,
-				1,1,
-				1,0,
-				0,0,
-				0,1,
-				1,1,
-				1,0
-
-				
-		};
+		TexturedModel staticModel = new TexturedModel(model, new ModelTexture(loader.loadModelTexture("tree")));
+		TexturedModel grass = new TexturedModel(OBJLoader.loadModel("grass", loader), new ModelTexture(loader.loadModelTexture("grass")));
+		TexturedModel flower = new TexturedModel(OBJLoader.loadModel("grass", loader), new ModelTexture(loader.loadModelTexture("flower")));
+		TexturedModel fern = new TexturedModel(OBJLoader.loadModel("fern", loader), new ModelTexture(loader.loadModelTexture("fern")));
+		TexturedModel bobble = new TexturedModel(OBJLoader.loadModel("lowPolyTree", loader), new ModelTexture(loader.loadModelTexture("lowPolyTree")));
+		TexturedModel hedge = new TexturedModel(OBJLoader.loadModel("grass", loader), new ModelTexture(loader.loadModelTexture("hedge")));
 		
-		int[] indices = {
-				0,1,3,	
-				3,1,2,	
-				4,5,7,
-				7,5,6,
-				8,9,11,
-				11,9,10,
-				12,13,15,
-				15,13,14,	
-				16,17,19,
-				19,17,18,
-				20,21,23,
-				23,21,22
-
-		};
+		grass.getTexture().setHasTransparency(true);
+		grass.getTexture().setUseFakeLighting(true);
+		flower.getTexture().setHasTransparency(true);
+		flower.getTexture().setUseFakeLighting(true);
+		fern.getTexture().setHasTransparency(true);
+		hedge.getTexture().setHasTransparency(true);
+		hedge.getTexture().setUseFakeLighting(true);
 		
-		Model model = loader.loadToVAO(vertices, textureCoordinates, indices);
+		List<Entity> entities = new ArrayList<Entity>();
+		Random random = new Random();
 		
-		TexturedModel staticModel = new TexturedModel(model, new ModelTexture(loader.loadTexture("test")));
+		for (int i = 0; i < 400; i++) {
+			if (i % 7 == 0) {
+				entities.add(new Entity(grass, new Vector3f(random.nextFloat() * 400 - 200, 0, random.nextFloat() * -400), 0, 0, 0, 1.8F));
+				entities.add(new Entity(flower, new Vector3f(random.nextFloat() * 400 - 200, 0, random.nextFloat() * -400), 0, 0, 0, 2.3F));
+				entities.add(new Entity(hedge, new Vector3f(random.nextFloat() * 400 - 200, 0, random.nextFloat() * -400), 0, 0, 0, 1.8F));
+			}
+			
+			if (i % 3 == 0) {
+				entities.add(new Entity(fern, new Vector3f(random.nextFloat() * 400 - 200, 0, random.nextFloat() * -400), 0, random.nextFloat() * 360, 0, 0.9F));
+				entities.add(new Entity(bobble, new Vector3f(random.nextFloat() * 800 - 400, 0, random.nextFloat() * -600), 0, random.nextFloat() * 360, 0, random.nextFloat() * 0.1F + 0.6F));
+				entities.add(new Entity(staticModel, new Vector3f(random.nextFloat() * 800 - 400, 0, random.nextFloat() * -600), 0, 0, 0, random.nextFloat() * 1 + 4));
+			}
+		}
 		
-		Entity entity = new Entity(staticModel, new Vector3f(0, 0, -5), 0, 0, 0, 1);
+		Light light = new Light(new Vector3f(20000, 40000, 20000), new Vector3f(1, 1, 1));
+		
+		Terrain terrain = new Terrain(0, 0, loader, new ModelTexture(loader.loadTexture("grass")));
+		Terrain terrain2 = new Terrain(1, 0, loader, new ModelTexture(loader.loadTexture("grass")));
 		
 		Camera camera = new Camera();
+		RenderManager renderManager = new RenderManager();
 		
 		while(!Display.isCloseRequested()) {
-			entity.increaseRotation(1, 1, 0);
 			camera.move();
-			renderManager.prepare();
-			shader.start();
-			shader.loadViewMatrix(camera);
-			renderManager.render(entity, shader);
-			shader.stop();
+			
+			for (Entity entity : entities)
+				renderManager.processEntity(entity);
+			
+			renderManager.processTerrain(terrain);
+			renderManager.processTerrain(terrain2);
+			
+			renderManager.render(light, camera);
 			DisplayManager.update();
 		}
 		
-		shader.clean();
+		renderManager.clean();
 		loader.clean();
 		DisplayManager.close();
 	}

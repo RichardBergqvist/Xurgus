@@ -17,7 +17,7 @@ import org.lwjgl.BufferUtils;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
-import net.rb.xurgus.graphics.model.Model;
+import net.rb.xurgus.model.Model;
 
 /**
  * 
@@ -30,11 +30,12 @@ public class ResourceLoader {
 	private List<Integer> vbos = new ArrayList<Integer>();
 	private List<Integer> textures = new ArrayList<Integer>();
 	
-	public Model loadToVAO(float[] positions, float[] textureCoordinates, int[] indices) {
+	public Model loadToVAO(float[] positions, float[] textureCoordinates, float[] normals, int[] indices) {
 		int vaoID = createVAO();
 		bindIndicesBuffer(indices);
 		storeDataInAttributeList(0, 3, positions);
 		storeDataInAttributeList(1, 2, textureCoordinates);
+		storeDataInAttributeList(2, 3, normals);
 		unbindVAO();
 		return new Model(vaoID, indices.length);
 	}
@@ -44,6 +45,26 @@ public class ResourceLoader {
 		
 		try {
 			texture = TextureLoader.getTexture("PNG", new FileInputStream("res/textures/" + name + ".png"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.err.println("Could not find image file: " + name + ".png");
+			System.exit(-1);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.err.println("Coult not read image file: " + name + ".png");
+			System.exit(-1);
+		}
+		
+		int textureID = texture.getTextureID();
+		textures.add(textureID);
+		return textureID;
+	}
+	
+	public int loadModelTexture(String name) {
+		Texture texture = null;
+		
+		try {
+			texture = TextureLoader.getTexture("PNG", new FileInputStream("res/textures/models/" + name + ".png"));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			System.err.println("Could not find image file: " + name + ".png");

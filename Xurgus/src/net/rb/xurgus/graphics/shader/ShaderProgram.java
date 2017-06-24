@@ -62,10 +62,6 @@ public abstract class ShaderProgram {
 		glUniform1f(location, value);
 	}
 	
-	protected void loadVector(int location, Vector3f vector) {
-		glUniform3f(location, vector.x, vector.y, vector.z);
-	}
-	
 	protected void loadBoolean(int location, boolean value) {
 		float toLoad = 0;
 		
@@ -73,6 +69,10 @@ public abstract class ShaderProgram {
 			toLoad = 1;
 		
 		glUniform1f(location, toLoad);
+	}
+	
+	protected void loadVector(int location, Vector3f vector) {
+		glUniform3f(location, vector.x, vector.y, vector.z);
 	}
 	
 	protected void loadMatrix(int location, Matrix4f matrix) {

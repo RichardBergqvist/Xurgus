@@ -62,6 +62,10 @@ public abstract class ShaderProgram {
 		glUniform1f(location, value);
 	}
 	
+	protected void loadInt(int location, int value) {
+		glUniform1i(location, value);
+	}
+	
 	protected void loadBoolean(int location, boolean value) {
 		float toLoad = 0;
 		

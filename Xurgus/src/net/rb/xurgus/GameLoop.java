@@ -13,6 +13,8 @@ import net.rb.xurgus.entity.Light;
 import net.rb.xurgus.graphics.DisplayManager;
 import net.rb.xurgus.graphics.rendering.RenderManager;
 import net.rb.xurgus.graphics.texture.ModelTexture;
+import net.rb.xurgus.graphics.texture.TerrainTexture;
+import net.rb.xurgus.graphics.texture.TerrainTexturePack;
 import net.rb.xurgus.model.Model;
 import net.rb.xurgus.model.TexturedModel;
 import net.rb.xurgus.resourcemanagement.OBJLoader;
@@ -29,6 +31,18 @@ public class GameLoop {
 	public static void main(String[] args) {
 		DisplayManager.create();
 		ResourceLoader loader = new ResourceLoader();
+		
+		//** TERRAIN TEXTURE PACK**\\
+		
+		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture("grassy"));
+		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture("mud"));
+		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture("grassFlowers"));
+		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture("path"));
+		
+		TerrainTexturePack texturePack = new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture);
+		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap"));
+		
+		//**************************\\
 		
 		Model model = OBJLoader.loadModel("tree", loader);
 		
@@ -48,7 +62,7 @@ public class GameLoop {
 		hedge.getTexture().setUseFakeLighting(true);
 		
 		List<Entity> entities = new ArrayList<Entity>();
-		Random random = new Random();
+		Random random = new Random(676452);
 		
 		for (int i = 0; i < 400; i++) {
 			if (i % 7 == 0) {
@@ -66,8 +80,8 @@ public class GameLoop {
 		
 		Light light = new Light(new Vector3f(20000, 40000, 20000), new Vector3f(1, 1, 1));
 		
-		Terrain terrain = new Terrain(0, 0, loader, new ModelTexture(loader.loadTexture("grass")));
-		Terrain terrain2 = new Terrain(1, 0, loader, new ModelTexture(loader.loadTexture("grass")));
+		Terrain terrain = new Terrain(0, 0, loader, texturePack, blendMap);
+		Terrain terrain2 = new Terrain(1, 0, loader, texturePack, blendMap);
 		
 		Camera camera = new Camera();
 		RenderManager renderManager = new RenderManager();

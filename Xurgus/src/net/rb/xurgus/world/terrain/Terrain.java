@@ -1,6 +1,7 @@
 package net.rb.xurgus.world.terrain;
 
-import net.rb.xurgus.graphics.texture.ModelTexture;
+import net.rb.xurgus.graphics.texture.TerrainTexture;
+import net.rb.xurgus.graphics.texture.TerrainTexturePack;
 import net.rb.xurgus.model.Model;
 import net.rb.xurgus.resourcemanagement.ResourceLoader;
 
@@ -17,12 +18,14 @@ public class Terrain {
 	private float x;
 	private float z;
 	private Model model;
-	private ModelTexture texture;
+	private TerrainTexturePack texturePack;
+	private TerrainTexture blendMap;
 	
-	public Terrain(int x, int z, ResourceLoader loader, ModelTexture texture) {
+	public Terrain(int x, int z, ResourceLoader loader, TerrainTexturePack texturePack, TerrainTexture blendMap) {
 		this.x = x * SIZE;
 		this.z = z * SIZE;
-		this.texture = texture;
+		this.texturePack = texturePack;
+		this.blendMap = blendMap;
 		this.model = generateTerrain(loader);
 	}
 	
@@ -80,7 +83,11 @@ public class Terrain {
 		return model;
 	}
 	
-	public ModelTexture getTexture() {
-		return texture;
+	public TerrainTexturePack getTexturePack() {
+		return texturePack;
+	}
+	
+	public TerrainTexture getBlendMap() {
+		return blendMap;
 	}
 }

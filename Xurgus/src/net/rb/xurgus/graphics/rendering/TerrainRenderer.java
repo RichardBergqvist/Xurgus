@@ -11,7 +11,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
 import net.rb.xurgus.graphics.shader.TerrainShader;
-import net.rb.xurgus.graphics.texture.ModelTexture;
+import net.rb.xurgus.graphics.texture.TerrainTexturePack;
 import net.rb.xurgus.model.Model;
 import net.rb.xurgus.util.Maths;
 import net.rb.xurgus.world.terrain.Terrain;
@@ -29,6 +29,7 @@ public class TerrainRenderer {
 		this.shader = shader;
 		this.shader.start();
 		this.shader.loadProjectionMatrix(projectionMatrix);
+		this.shader.connectTextureUnits();
 		this.shader.stop();
 	}
 	
@@ -48,10 +49,22 @@ public class TerrainRenderer {
 		glEnableVertexAttribArray(1);
 		glEnableVertexAttribArray(2);
 		
-		ModelTexture texture = terrain.getTexture();
 		shader.loadShineVariables(1, 0);
+		bindTextures(terrain);
+	}
+	
+	private void bindTextures(Terrain terrain) {
+		TerrainTexturePack texturePack = terrain.getTexturePack();
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
+		glBindTexture(GL_TEXTURE_2D, texturePack.getBackgroundTexture().getTextureID());
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texturePack.getrTexture().getTextureID());
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, texturePack.getgTexture().getTextureID());
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, texturePack.getbTexture().getTextureID());
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, terrain.getBlendMap().getTextureID());
 	}
 	
 	private void unbindTexturedModel() {

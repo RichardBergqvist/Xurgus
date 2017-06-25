@@ -15,8 +15,8 @@ import net.rb.xurgus.graphics.rendering.RenderManager;
 import net.rb.xurgus.graphics.texture.ModelTexture;
 import net.rb.xurgus.model.Model;
 import net.rb.xurgus.model.TexturedModel;
-import net.rb.xurgus.util.OBJLoader;
-import net.rb.xurgus.util.ResourceLoader;
+import net.rb.xurgus.resourcemanagement.OBJLoader;
+import net.rb.xurgus.resourcemanagement.ResourceLoader;
 import net.rb.xurgus.world.terrain.Terrain;
 
 /**

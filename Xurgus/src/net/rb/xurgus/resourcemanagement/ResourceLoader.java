@@ -1,4 +1,4 @@
-package net.rb.xurgus.util;
+package net.rb.xurgus.resourcemanagement;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;

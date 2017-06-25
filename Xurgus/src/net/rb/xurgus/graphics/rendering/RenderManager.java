@@ -29,6 +29,12 @@ public class RenderManager {
 	private static final float NEAR_PLANE = 0.1F;
 	private static final float FAR_PLANE = 1000;
 	
+	// BLUE SKY R: 0.49F, G: 89, B: 0.98F
+	// GRAY SKY R: 0.5F, G: 0.5F, B: 0.5F
+	private static final float RED = 0.5F;
+	private static final float GREEN = 0.5F;
+	private static final float BLUE = 0.5F;
+	
 	private Matrix4f projectionMatrix;
 	
 	private StaticShader staticShader = new StaticShader();
@@ -61,11 +67,13 @@ public class RenderManager {
 		staticShader.start();
 		staticShader.loadLight(light);
 		staticShader.loadViewMatrix(camera);
+		staticShader.loadSkyColor(RED, GREEN, BLUE);
 		entityRenderer.render(entities);
 		staticShader.stop();
 		terrainShader.start();
 		terrainShader.loadLight(light);
 		terrainShader.loadViewMatrix(camera);
+		terrainShader.loadSkyColor(RED, GREEN, BLUE);
 		terrainRenderer.render(terrains);
 		terrainShader.stop();
 		entities.clear();
@@ -92,7 +100,7 @@ public class RenderManager {
 	public void prepare() {
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.49F, 89, 0.98F, 1);
+		glClearColor(RED, GREEN, BLUE, 1);
 	}
 	
 	private void createProjectionMatrix() {

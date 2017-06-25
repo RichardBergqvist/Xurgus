@@ -1,4 +1,4 @@
-package net.rb.xurgus.util;
+package net.rb.xurgus.resourcemanagement;
 
 import java.io.BufferedReader;
 import java.io.File;

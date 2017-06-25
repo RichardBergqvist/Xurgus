@@ -2,7 +2,7 @@ package net.rb.xurgus.world.terrain;
 
 import net.rb.xurgus.graphics.texture.ModelTexture;
 import net.rb.xurgus.model.Model;
-import net.rb.xurgus.util.ResourceLoader;
+import net.rb.xurgus.resourcemanagement.ResourceLoader;
 
 /**
  * 

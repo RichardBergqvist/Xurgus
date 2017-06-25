@@ -1,6 +1,7 @@
 package net.rb.xurgus.graphics.shader;
 
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 import net.rb.xurgus.entity.Camera;
 import net.rb.xurgus.entity.Light;
@@ -24,6 +25,7 @@ public class StaticShader extends ShaderProgram {
 	private int location_shineDamper;
 	private int location_reflectivity;
 	private int location_useFakeLighting;
+	private int location_skyColor;
 	
 	public StaticShader() {
 		super(VERTEX_FILE, FRAGMENT_FILE);
@@ -46,6 +48,7 @@ public class StaticShader extends ShaderProgram {
 		location_shineDamper = getUniformLocation("shineDamper");
 		location_reflectivity = getUniformLocation("reflectivity");
 		location_useFakeLighting = getUniformLocation("useFakeLighting");
+		location_skyColor = getUniformLocation("skyColor");
 	}
 	
 	public void loadTransformationMatrix(Matrix4f matrix) {
@@ -73,5 +76,9 @@ public class StaticShader extends ShaderProgram {
 	
 	public void loadFakeLighting(boolean useFakeLighting) {
 		loadBoolean(location_useFakeLighting, useFakeLighting);
+	}
+	
+	public void loadSkyColor(float r, float g, float b) {
+		loadVector(location_skyColor, new Vector3f(r, g, b));
 	}
 }

@@ -1,6 +1,7 @@
 package net.rb.xurgus.resourcemanagement;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL14.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
@@ -45,6 +46,10 @@ public class ResourceLoader {
 		
 		try {
 			texture = TextureLoader.getTexture("PNG", new FileInputStream("res/textures/" + name + ".png"));
+		
+			glGenerateMipmap(GL_TEXTURE_2D);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -0.4F);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			System.err.println("Could not find image file: " + name + ".png");
@@ -65,6 +70,10 @@ public class ResourceLoader {
 		
 		try {
 			texture = TextureLoader.getTexture("PNG", new FileInputStream("res/textures/models/" + name + ".png"));
+			
+			glGenerateMipmap(GL_TEXTURE_2D);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -0.4F);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			System.err.println("Could not find image file: " + name + ".png");

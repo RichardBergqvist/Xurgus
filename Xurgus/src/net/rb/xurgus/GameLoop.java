@@ -10,13 +10,16 @@ import org.lwjgl.util.vector.Vector3f;
 import net.rb.xurgus.entity.Camera;
 import net.rb.xurgus.entity.Entity;
 import net.rb.xurgus.entity.Light;
+import net.rb.xurgus.entity.Player;
 import net.rb.xurgus.graphics.DisplayManager;
 import net.rb.xurgus.graphics.rendering.RenderManager;
 import net.rb.xurgus.graphics.texture.ModelTexture;
 import net.rb.xurgus.graphics.texture.TerrainTexture;
 import net.rb.xurgus.graphics.texture.TerrainTexturePack;
 import net.rb.xurgus.model.Model;
+import net.rb.xurgus.model.ModelData;
 import net.rb.xurgus.model.TexturedModel;
+import net.rb.xurgus.resourcemanagement.OBJFileLoader;
 import net.rb.xurgus.resourcemanagement.OBJLoader;
 import net.rb.xurgus.resourcemanagement.ResourceLoader;
 import net.rb.xurgus.world.terrain.Terrain;
@@ -44,6 +47,8 @@ public class GameLoop {
 		
 		//**************************\\
 		
+		ModelData crateModelData = OBJFileLoader.loadOBJ("box");
+		Model crateModel = loader.loadToVAO(crateModelData.getVertices(), crateModelData.getTextureCoordinates(), crateModelData.getNormals(), crateModelData.getIndices());
 		Model model = OBJLoader.loadModel("tree", loader);
 		
 		TexturedModel staticModel = new TexturedModel(model, new ModelTexture(loader.loadModelTexture("tree")));
@@ -52,6 +57,7 @@ public class GameLoop {
 		TexturedModel fern = new TexturedModel(OBJLoader.loadModel("fern", loader), new ModelTexture(loader.loadModelTexture("fern")));
 		TexturedModel bobble = new TexturedModel(OBJLoader.loadModel("lowPolyTree", loader), new ModelTexture(loader.loadModelTexture("lowPolyTree")));
 		TexturedModel hedge = new TexturedModel(OBJLoader.loadModel("grass", loader), new ModelTexture(loader.loadModelTexture("hedge")));
+		TexturedModel crate = new TexturedModel(crateModel, new ModelTexture(loader.loadModelTexture("box")));
 		
 		grass.getTexture().setHasTransparency(true);
 		grass.getTexture().setUseFakeLighting(true);
@@ -76,6 +82,8 @@ public class GameLoop {
 				entities.add(new Entity(bobble, new Vector3f(random.nextFloat() * 800 - 400, 0, random.nextFloat() * -600), 0, random.nextFloat() * 360, 0, random.nextFloat() * 0.1F + 0.6F));
 				entities.add(new Entity(staticModel, new Vector3f(random.nextFloat() * 800 - 400, 0, random.nextFloat() * -600), 0, 0, 0, random.nextFloat() * 1 + 4));
 			}
+			
+			entities.add(new Entity(crate, new Vector3f(100, 10, -50), 0, 0, 0, 4));
 		}
 		
 		Light light = new Light(new Vector3f(20000, 40000, 20000), new Vector3f(1, 1, 1));
@@ -83,14 +91,21 @@ public class GameLoop {
 		Terrain terrain = new Terrain(0, 0, loader, texturePack, blendMap);
 		Terrain terrain2 = new Terrain(1, 0, loader, texturePack, blendMap);
 		
-		Camera camera = new Camera();
 		RenderManager renderManager = new RenderManager();
+		
+		Model playerModel = OBJLoader.loadModel("person", loader);
+		TexturedModel playerA = new TexturedModel(playerModel, new ModelTexture(loader.loadModelTexture("player")));
+		
+		Player player = new Player(playerA, new Vector3f(100, 0, -50), 0, 0, 0, 1);
+		Camera camera = new Camera(player);
 		
 		while(!Display.isCloseRequested()) {
 			camera.move();
+			player.move();
 			
 			for (Entity entity : entities)
 				renderManager.processEntity(entity);
+			renderManager.processEntity(player);
 			
 			renderManager.processTerrain(terrain);
 			renderManager.processTerrain(terrain2);

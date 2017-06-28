@@ -13,9 +13,13 @@ import org.lwjgl.util.vector.Matrix4f;
 import net.rb.xurgus.entity.Camera;
 import net.rb.xurgus.entity.Entity;
 import net.rb.xurgus.entity.Light;
+import net.rb.xurgus.graphics.shader.GuiShader;
+import net.rb.xurgus.graphics.shader.SkyboxShader;
 import net.rb.xurgus.graphics.shader.StaticShader;
 import net.rb.xurgus.graphics.shader.TerrainShader;
+import net.rb.xurgus.graphics.texture.GuiTexture;
 import net.rb.xurgus.model.TexturedModel;
+import net.rb.xurgus.resourcemanagement.ResourceLoader;
 import net.rb.xurgus.world.terrain.Terrain;
 
 /**
@@ -31,9 +35,9 @@ public class RenderManager {
 	
 	// BLUE SKY R: 0.49F, G: 89, B: 0.98F
 	// GRAY SKY R: 0.5F, G: 0.5F, B: 0.5F
-	private static final float RED = 0.6F;
-	private static final float GREEN = 0.78F;
-	private static final float BLUE = 0.76F;
+	private static final float RED = 0.5444F;
+	private static final float GREEN = 0.62F;
+	private static final float BLUE = 0.69F;
 	
 	private Matrix4f projectionMatrix;
 	
@@ -43,14 +47,23 @@ public class RenderManager {
 	private TerrainShader terrainShader = new TerrainShader();
 	private TerrainRenderer terrainRenderer;
 	
+	private GuiShader guiShader = new GuiShader();
+	private GuiRenderer guiRenderer;
+	
+	private SkyboxShader skyboxShader = new SkyboxShader();
+	private SkyboxRenderer skyboxRenderer;
+	
 	private Map<TexturedModel, List<Entity>> entities = new HashMap<TexturedModel, List<Entity>>();
 	private List<Terrain> terrains = new ArrayList<Terrain>();
+	private List<GuiTexture> guis = new ArrayList<GuiTexture>();
 	
-	public RenderManager() {
+	public RenderManager(ResourceLoader loader) {
 		enableCulling();
 		createProjectionMatrix();
 		entityRenderer = new EntityRenderer(staticShader, projectionMatrix);
 		terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
+		guiRenderer = new GuiRenderer(loader, guiShader);
+		skyboxRenderer = new SkyboxRenderer(loader, skyboxShader, projectionMatrix);
 	}
 	
 	public static void enableCulling() {
@@ -76,8 +89,16 @@ public class RenderManager {
 		terrainShader.loadSkyColor(RED, GREEN, BLUE);
 		terrainRenderer.render(terrains);
 		terrainShader.stop();
+		guiRenderer.render(guis);
+		skyboxShader.start();
+		skyboxShader.loadViewMatrix(camera);
+		skyboxShader.loadFogColor(RED, GREEN, BLUE);
+		skyboxRenderer.render();
+		skyboxShader.stop();
+		
 		entities.clear();
 		terrains.clear();
+		guis.clear();
 	}
 	
 	public void processEntity(Entity entity) {
@@ -95,6 +116,10 @@ public class RenderManager {
 	
 	public void processTerrain(Terrain terrain) {
 		terrains.add(terrain);
+	}
+	
+	public void processGui(GuiTexture gui) {
+		guis.add(gui);
 	}
 	
 	public void prepare() {
@@ -121,5 +146,7 @@ public class RenderManager {
 	public void clean() {
 		staticShader.clean();
 		terrainShader.clean();
+		guiShader.clean();
+		skyboxShader.clean();
 	}
 }

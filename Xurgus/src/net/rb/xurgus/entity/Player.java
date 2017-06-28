@@ -3,8 +3,8 @@ package net.rb.xurgus.entity;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector3f;
 
-import net.rb.xurgus.graphics.DisplayManager;
 import net.rb.xurgus.model.TexturedModel;
+import net.rb.xurgus.util.Timer;
 import net.rb.xurgus.world.terrain.Terrain;
 
 /**
@@ -31,14 +31,14 @@ public class Player extends Entity {
 	
 	public void move(Terrain terrain) {
 		checkInput();
-		increaseRotation(0, currentTurnSpeed * DisplayManager.getFrameTimeAsSeconds(), 0);
+		increaseRotation(0, currentTurnSpeed * Timer.getFrameTimeAsSeconds(), 0);
 		
-		float distance = currentSpeed * DisplayManager.getFrameTimeAsSeconds();
+		float distance = currentSpeed * Timer.getFrameTimeAsSeconds();
 		float dx = (float) (distance * Math.sin(Math.toRadians(getRotY())));
 		float dz = (float) (distance * Math.cos(Math.toRadians(getRotY())));
 		increasePosition(dx, 0, dz);
-		upwardsSpeed += GRAVITY * DisplayManager.getFrameTimeAsSeconds();
-		increasePosition(0, upwardsSpeed * DisplayManager.getFrameTimeAsSeconds(), 0);
+		upwardsSpeed += GRAVITY * Timer.getFrameTimeAsSeconds();
+		increasePosition(0, upwardsSpeed * Timer.getFrameTimeAsSeconds(), 0);
 	
 		float terrainHeight = terrain.getHeightOfTerrain(getPosition().x, getPosition().z);
 		if (getPosition().y < terrainHeight) {

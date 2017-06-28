@@ -68,6 +68,8 @@ public class Camera {
 		distanceFromPlayer -= zoomLevel;
 		if (distanceFromPlayer < 5)
 			distanceFromPlayer = 5;
+		else if (distanceFromPlayer > 120)
+			distanceFromPlayer = 120;
 	}
 	
 	private void calculateAngleAroundPlayer() {

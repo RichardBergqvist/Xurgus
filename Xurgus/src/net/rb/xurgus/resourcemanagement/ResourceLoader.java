@@ -1,6 +1,7 @@
 package net.rb.xurgus.resourcemanagement;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL14.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
@@ -9,6 +10,7 @@ import static org.lwjgl.opengl.GL30.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -18,6 +20,9 @@ import org.lwjgl.BufferUtils;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
+import de.matthiasmann.twl.utils.PNGDecoder;
+import de.matthiasmann.twl.utils.PNGDecoder.Format;
+import net.rb.xurgus.graphics.texture.TextureData;
 import net.rb.xurgus.model.Model;
 
 /**
@@ -41,34 +46,18 @@ public class ResourceLoader {
 		return new Model(vaoID, indices.length);
 	}
 	
-	public Model loadToVAO(float[] positions) {
+	public Model loadToVAO(float[] positions, int dimension) {
 		int vaoID = createVAO();
-		storeDataInAttributeList(0, 2, positions);
+		storeDataInAttributeList(0, dimension, positions);
 		unbindVAO();
-		return new Model(vaoID, positions.length / 2);
+		return new Model(vaoID, positions.length / dimension);
 	}
 	
-	public int loadTexture(String name, TextureType type) {
+	public int loadTexture(String name) {
 		Texture texture = null;
 		
-		String RESOURCE_LOCATION = "res/textures/";
-		String EXTENSION = ".png";
-		
 		try {
-			if (type == TextureType.BLOCK)
-				texture = TextureLoader.getTexture("PNG", new FileInputStream(RESOURCE_LOCATION + type.getResourceLocation() + "/" + name + EXTENSION));
-			else if (type == TextureType.ITEM)
-				texture = TextureLoader.getTexture("PNG", new FileInputStream(RESOURCE_LOCATION + type.getResourceLocation() + "/" + name + EXTENSION));
-			else if (type == TextureType.MODEL)
-				texture = TextureLoader.getTexture("PNG", new FileInputStream(RESOURCE_LOCATION + type.getResourceLocation() + "/" + name + EXTENSION));
-			else if (type == TextureType.LIVING_ENTITY)
-				texture = TextureLoader.getTexture("PNG", new FileInputStream(RESOURCE_LOCATION + type.getResourceLocation() + "/" + name + EXTENSION));
-			else if (type == TextureType.BLENDMAP)
-				texture = TextureLoader.getTexture("PNG", new FileInputStream(RESOURCE_LOCATION + type.getResourceLocation() + "/" + name + EXTENSION));
-			else if (type == TextureType.HEIGHTMAP)
-				texture = TextureLoader.getTexture("PNG", new FileInputStream(RESOURCE_LOCATION + type.getResourceLocation() + "/" + name + EXTENSION));
-			else if (type == TextureType.GUI)
-				texture = TextureLoader.getTexture("PNG", new FileInputStream(RESOURCE_LOCATION + type.getResourceLocation() + "/" + name + EXTENSION));
+			texture = TextureLoader.getTexture("PNG", new FileInputStream("res/textures/" + name + ".png"));
 			
 			glGenerateMipmap(GL_TEXTURE_2D);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -86,6 +75,44 @@ public class ResourceLoader {
 		int textureID = texture.getTextureID();
 		textures.add(textureID);
 		return textureID;
+	}
+	
+	public int loadCubeMap(String[] textureFiles) {
+		int textureID = glGenTextures();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+		
+		for (int i = 0; i < textureFiles.length; i++) {
+			TextureData data = decodeTextureFile("res/textures/skybox/" + textureFiles[i] + ".png");
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, data.getWidth(), data.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, data.getBuffer());
+		}
+		
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		textures.add(textureID);
+		return textureID;
+	}
+	
+	private TextureData decodeTextureFile(String name) {
+		ByteBuffer buffer = null;
+		int width = 0;
+		int height = 0;
+		try {
+			FileInputStream in = new FileInputStream(name);
+			PNGDecoder decoder = new PNGDecoder(in);
+			width = decoder.getWidth();
+			height = decoder.getHeight();
+			buffer = ByteBuffer.allocateDirect(4 * width * height);
+			decoder.decode(buffer, width * 4, Format.RGBA);
+			buffer.flip();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Could not read image file: " + name);
+			System.exit(-1);
+		}
+		
+		return new TextureData(buffer, width, height);
 	}
 	
 	private int createVAO() {
@@ -138,26 +165,6 @@ public class ResourceLoader {
 			glDeleteBuffers(vbo);
 		for (int texture : textures) {
 			glDeleteTextures(texture);
-		}
-	}
-	
-	public static enum TextureType {
-		BLOCK("blocks"),
-		ITEM("items"),
-		MODEL("models"),
-		LIVING_ENTITY("entities"),
-		BLENDMAP("blendmaps"),
-		HEIGHTMAP("heightmaps"),
-		GUI("gui");
-		
-		private String resourceLocation;
-		
-		TextureType(String resourceLocation) {
-			this.resourceLocation = resourceLocation;
-		}
-		
-		public String getResourceLocation() {
-			return resourceLocation;
 		}
 	}
 }

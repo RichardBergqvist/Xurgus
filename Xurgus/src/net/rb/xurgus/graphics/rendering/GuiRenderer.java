@@ -25,10 +25,10 @@ public class GuiRenderer {
 	private final Model quad;
 	private GuiShader shader;
 	
-	public GuiRenderer(ResourceLoader loader) {
+	public GuiRenderer(ResourceLoader loader, GuiShader shader) {
 		float[] positions = { -1, 1, -1, -1, 1, 1, 1, -1};
-		quad = loader.loadToVAO(positions);
-		shader = new GuiShader();
+		this.quad = loader.loadToVAO(positions, 2);
+		this.shader = shader;
 	}
 	
 	public void render(List<GuiTexture> guis) {
@@ -52,9 +52,5 @@ public class GuiRenderer {
 		glEnable(GL_DEPTH_TEST);
 		glBindVertexArray(0);
 		shader.stop();
-	}
-	
-	public void clean() {
-		shader.clean();
 	}
 }

@@ -13,7 +13,6 @@ import net.rb.xurgus.graphics.texture.TerrainTexture;
 import net.rb.xurgus.graphics.texture.TerrainTexturePack;
 import net.rb.xurgus.model.Model;
 import net.rb.xurgus.resourcemanagement.ResourceLoader;
-import net.rb.xurgus.resourcemanagement.ResourceLoader.TextureType;
 import net.rb.xurgus.util.Maths;
 
 /**
@@ -47,7 +46,7 @@ public class Terrain {
 		
 		BufferedImage image = null;
 		try {
-			image = ImageIO.read(new File("res/textures/" + TextureType.HEIGHTMAP.getResourceLocation() + "/" + heightMap + ".png"));
+			image = ImageIO.read(new File("res/textures/misc/" + heightMap + ".png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.err.println("Could not read height map!");

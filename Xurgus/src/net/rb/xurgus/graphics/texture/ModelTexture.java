@@ -8,11 +8,14 @@ package net.rb.xurgus.graphics.texture;
 public class ModelTexture {
 
 	private int textureID;
+	
 	private float shineDamper = 1;
 	private float reflectivity = 0;
 	
 	private boolean hasTransparency = false;
 	private boolean useFakeLighting = false;
+	
+	private int numberOfRows = 1;
 	
 	public ModelTexture(int textureID) {
 		this.textureID = textureID;
@@ -52,5 +55,13 @@ public class ModelTexture {
 	
 	public boolean getUseFakeLighting() {
 		return useFakeLighting;
+	}
+	
+	public void setNumberOfRows(int numberOfRows) {
+		this.numberOfRows = numberOfRows;
+	}
+	
+	public int getNumberOfRows() {
+		return numberOfRows;
 	}
 }

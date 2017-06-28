@@ -1,4 +1,4 @@
-package net.rb.xurgus.resourcemanagement;
+package net.rb.xurgus.model;
 
 import org.lwjgl.util.vector.Vector3f;
 

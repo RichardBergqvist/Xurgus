@@ -3,14 +3,20 @@ package net.rb.xurgus.entity;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Vector3f;
 
+/**
+ * 
+ * @author Richard Bergqvist
+ *
+ */
 public class Camera {
 
 	private Player player;
+	
 	private Vector3f position = new Vector3f(100, 35, 50);
 	private float pitch = 20;
-	private float yaw;
+	private float yaw = 0;
 	
-	private float distanceFromPlayer = 50;
+	private float distanceFromPlayer = 35;
 	private float angleAroundPlayer = 0;
 	
 	public Camera(Player player) {
@@ -33,7 +39,7 @@ public class Camera {
 		float offsetX = (float) (horizontalDistance * Math.sin(Math.toRadians(theta)));
 		float offsetZ = (float) (horizontalDistance * Math.cos(Math.toRadians(theta)));
 		position.x = player.getPosition().x - offsetX;
-		position.y = player.getPosition().y + verticalDistance;
+		position.y = player.getPosition().y + verticalDistance + 4;
 		position.z = player.getPosition().z - offsetZ;
 		
 	}
@@ -48,14 +54,20 @@ public class Camera {
 	
 	private void calculatePitch() {
 		if (Mouse.isButtonDown(1)) {
-			float pitchChange = Mouse.getDY() * 0.1F;
+			float pitchChange = Mouse.getDY() * 0.2F;
 			pitch -= pitchChange;
+			if (pitch < 0)
+				pitch = 0;
+			else if (pitch > 90)
+				pitch = 90;
 		}
 	}
 	
 	private void calculateZoom() {
-		float zoomLevel = Mouse.getDWheel() * 0.1F;
+		float zoomLevel = Mouse.getDWheel() * 0.3F;
 		distanceFromPlayer -= zoomLevel;
+		if (distanceFromPlayer < 5)
+			distanceFromPlayer = 5;
 	}
 	
 	private void calculateAngleAroundPlayer() {

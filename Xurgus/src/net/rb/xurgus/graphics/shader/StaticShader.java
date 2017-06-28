@@ -1,6 +1,9 @@
 package net.rb.xurgus.graphics.shader;
 
+import java.util.List;
+
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
 import net.rb.xurgus.entity.Camera;
@@ -17,15 +20,19 @@ public class StaticShader extends ShaderProgram {
 	private static final String VERTEX_FILE = "vertexShader";
 	private static final String FRAGMENT_FILE = "fragmentShader";
 	
+	private static final int MAX_LIGHTS = 4;
+	
 	private int location_transformationMatrix;
 	private int location_viewMatrix;
 	private int location_projectionMatrix;
-	private int location_lightPosition;
-	private int location_lightColor;
 	private int location_shineDamper;
 	private int location_reflectivity;
 	private int location_useFakeLighting;
 	private int location_skyColor;
+	private int location_numberOfRows;
+	private int location_offset;
+	private int location_lightPosition[];
+	private int location_lightColor[];
 	
 	public StaticShader() {
 		super(VERTEX_FILE, FRAGMENT_FILE);
@@ -43,12 +50,19 @@ public class StaticShader extends ShaderProgram {
 		location_transformationMatrix = getUniformLocation("transformationMatrix");
 		location_viewMatrix = getUniformLocation("viewMatrix");
 		location_projectionMatrix = getUniformLocation("projectionMatrix");
-		location_lightPosition = getUniformLocation("lightPosition");
-		location_lightColor = getUniformLocation("lightColor");
 		location_shineDamper = getUniformLocation("shineDamper");
 		location_reflectivity = getUniformLocation("reflectivity");
 		location_useFakeLighting = getUniformLocation("useFakeLighting");
 		location_skyColor = getUniformLocation("skyColor");
+		location_numberOfRows = getUniformLocation("numberOfRows");
+		location_offset = getUniformLocation("offset");
+		
+		location_lightPosition = new int[MAX_LIGHTS];
+		location_lightColor = new int[MAX_LIGHTS];
+		for (int i = 0; i < MAX_LIGHTS; i++) {
+			location_lightPosition[i] = getUniformLocation("lightPosition[" + i + "]");
+			location_lightColor[i] = getUniformLocation("lightColor[" + i + "]");
+		}
 	}
 	
 	public void loadTransformationMatrix(Matrix4f matrix) {
@@ -64,11 +78,6 @@ public class StaticShader extends ShaderProgram {
 		loadMatrix(location_projectionMatrix, matrix);
 	}
 	
-	public void loadLight(Light light) {
-		loadVector(location_lightPosition, light.getPosition());
-		loadVector(location_lightColor, light.getColor());
-	}
-	
 	public void loadShineVariables(float shineDamper, float reflectivity) {
 		loadFloat(location_shineDamper, shineDamper);
 		loadFloat(location_reflectivity, reflectivity);
@@ -79,6 +88,26 @@ public class StaticShader extends ShaderProgram {
 	}
 	
 	public void loadSkyColor(float r, float g, float b) {
-		loadVector(location_skyColor, new Vector3f(r, g, b));
+		loadVector3f(location_skyColor, new Vector3f(r, g, b));
+	}
+	
+	public void loadNumberOfRows(int numberOfRows) {
+		loadFloat(location_numberOfRows, numberOfRows);
+	}
+	
+	public void loadOffset(float x, float y) {
+		loadVector2f(location_offset, new Vector2f(x, y));
+	}
+	
+	public void loadLights(List<Light> lights) {
+		for (int i = 0; i < MAX_LIGHTS; i++) {
+			if (i < lights.size()) {
+				loadVector3f(location_lightPosition[i], lights.get(i).getPosition());
+				loadVector3f(location_lightColor[i], lights.get(i).getColor());
+			} else {
+				loadVector3f(location_lightPosition[i], new Vector3f(0, 0, 0));
+				loadVector3f(location_lightColor[i], new Vector3f(0, 0, 0));
+			}
+		}
 	}
 }

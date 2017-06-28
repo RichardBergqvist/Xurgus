@@ -5,6 +5,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import net.rb.xurgus.graphics.DisplayManager;
 import net.rb.xurgus.model.TexturedModel;
+import net.rb.xurgus.world.terrain.Terrain;
 
 /**
  * 
@@ -13,13 +14,10 @@ import net.rb.xurgus.model.TexturedModel;
  */
 public class Player extends Entity {
 
-	private static final float WALK_SPEED = 20;
-	private static final float RUN_SPEED = 30;
+	private static final float RUN_SPEED = 40;
 	private static final float TURN_SPEED = 160;
 	private static final float GRAVITY = -50;
-	private static final float JUMP_POWER = 30;
-	
-	private static final float TERRAIN_HEIGHT = 0;
+	private static final float JUMP_POWER = 18;
 	
 	private float currentSpeed = 0;
 	private float currentTurnSpeed = 0;
@@ -31,7 +29,7 @@ public class Player extends Entity {
 		super(model, position, rotX, rotY, rotZ, scale);
 	}
 	
-	public void move() {
+	public void move(Terrain terrain) {
 		checkInput();
 		increaseRotation(0, currentTurnSpeed * DisplayManager.getFrameTimeAsSeconds(), 0);
 		
@@ -42,10 +40,11 @@ public class Player extends Entity {
 		upwardsSpeed += GRAVITY * DisplayManager.getFrameTimeAsSeconds();
 		increasePosition(0, upwardsSpeed * DisplayManager.getFrameTimeAsSeconds(), 0);
 	
-		if (getPosition().y < TERRAIN_HEIGHT) {
+		float terrainHeight = terrain.getHeightOfTerrain(getPosition().x, getPosition().z);
+		if (getPosition().y < terrainHeight) {
 			upwardsSpeed = 0;
 			isAirborne = false;
-			getPosition().y = TERRAIN_HEIGHT;
+			getPosition().y = terrainHeight;
 		}
 	}
 	
@@ -58,9 +57,9 @@ public class Player extends Entity {
 	
 	private void checkInput() {
 		if (Keyboard.isKeyDown(Keyboard.KEY_W))
-			currentSpeed = WALK_SPEED;
+			currentSpeed = RUN_SPEED;
 		else if (Keyboard.isKeyDown(Keyboard.KEY_S))
-			currentSpeed = -WALK_SPEED;
+			currentSpeed = -RUN_SPEED;
 		else
 			currentSpeed = 0;
 		

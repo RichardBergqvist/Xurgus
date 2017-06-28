@@ -10,6 +10,7 @@ import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
 /**
@@ -75,8 +76,12 @@ public abstract class ShaderProgram {
 		glUniform1f(location, toLoad);
 	}
 	
-	protected void loadVector(int location, Vector3f vector) {
+	protected void loadVector3f(int location, Vector3f vector) {
 		glUniform3f(location, vector.x, vector.y, vector.z);
+	}
+	
+	protected void loadVector2f(int location, Vector2f vector) {
+		glUniform2f(location, vector.x, vector.y);
 	}
 	
 	protected void loadMatrix(int location, Matrix4f matrix) {

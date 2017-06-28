@@ -41,35 +41,34 @@ public class ResourceLoader {
 		return new Model(vaoID, indices.length);
 	}
 	
-	public int loadTexture(String name) {
-		Texture texture = null;
-		
-		try {
-			texture = TextureLoader.getTexture("PNG", new FileInputStream("res/textures/" + name + ".png"));
-		
-			glGenerateMipmap(GL_TEXTURE_2D);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -0.4F);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			System.err.println("Could not find image file: " + name + ".png");
-			System.exit(-1);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.err.println("Coult not read image file: " + name + ".png");
-			System.exit(-1);
-		}
-		
-		int textureID = texture.getTextureID();
-		textures.add(textureID);
-		return textureID;
+	public Model loadToVAO(float[] positions) {
+		int vaoID = createVAO();
+		storeDataInAttributeList(0, 2, positions);
+		unbindVAO();
+		return new Model(vaoID, positions.length / 2);
 	}
 	
-	public int loadModelTexture(String name) {
+	public int loadTexture(String name, TextureType type) {
 		Texture texture = null;
 		
+		String RESOURCE_LOCATION = "res/textures/";
+		String EXTENSION = ".png";
+		
 		try {
-			texture = TextureLoader.getTexture("PNG", new FileInputStream("res/textures/models/" + name + ".png"));
+			if (type == TextureType.BLOCK)
+				texture = TextureLoader.getTexture("PNG", new FileInputStream(RESOURCE_LOCATION + type.getResourceLocation() + "/" + name + EXTENSION));
+			else if (type == TextureType.ITEM)
+				texture = TextureLoader.getTexture("PNG", new FileInputStream(RESOURCE_LOCATION + type.getResourceLocation() + "/" + name + EXTENSION));
+			else if (type == TextureType.MODEL)
+				texture = TextureLoader.getTexture("PNG", new FileInputStream(RESOURCE_LOCATION + type.getResourceLocation() + "/" + name + EXTENSION));
+			else if (type == TextureType.LIVING_ENTITY)
+				texture = TextureLoader.getTexture("PNG", new FileInputStream(RESOURCE_LOCATION + type.getResourceLocation() + "/" + name + EXTENSION));
+			else if (type == TextureType.BLENDMAP)
+				texture = TextureLoader.getTexture("PNG", new FileInputStream(RESOURCE_LOCATION + type.getResourceLocation() + "/" + name + EXTENSION));
+			else if (type == TextureType.HEIGHTMAP)
+				texture = TextureLoader.getTexture("PNG", new FileInputStream(RESOURCE_LOCATION + type.getResourceLocation() + "/" + name + EXTENSION));
+			else if (type == TextureType.GUI)
+				texture = TextureLoader.getTexture("PNG", new FileInputStream(RESOURCE_LOCATION + type.getResourceLocation() + "/" + name + EXTENSION));
 			
 			glGenerateMipmap(GL_TEXTURE_2D);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -139,6 +138,26 @@ public class ResourceLoader {
 			glDeleteBuffers(vbo);
 		for (int texture : textures) {
 			glDeleteTextures(texture);
+		}
+	}
+	
+	public static enum TextureType {
+		BLOCK("blocks"),
+		ITEM("items"),
+		MODEL("models"),
+		LIVING_ENTITY("entities"),
+		BLENDMAP("blendmaps"),
+		HEIGHTMAP("heightmaps"),
+		GUI("gui");
+		
+		private String resourceLocation;
+		
+		TextureType(String resourceLocation) {
+			this.resourceLocation = resourceLocation;
+		}
+		
+		public String getResourceLocation() {
+			return resourceLocation;
 		}
 	}
 }

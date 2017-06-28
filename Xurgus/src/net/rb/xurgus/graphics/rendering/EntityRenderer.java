@@ -38,7 +38,6 @@ public class EntityRenderer {
 			prepareTexturedModel(model);
 			
 			List<Entity> batch = entities.get(model);
-			
 			for (Entity entity : batch) {
 				loadTransformationMatrix(entity);
 				glDrawElements(GL_TRIANGLES, model.getModel().getVertexCount(), GL_UNSIGNED_INT, 0);
@@ -61,6 +60,7 @@ public class EntityRenderer {
 			RenderManager.disableCulling();
 		shader.loadShineVariables(texture.getShineDamper(), texture.getReflectivity());
 		shader.loadFakeLighting(texture.getUseFakeLighting());
+		shader.loadNumberOfRows(texture.getNumberOfRows());
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, model.getTexture().getTextureID());
 	}
@@ -76,5 +76,6 @@ public class EntityRenderer {
 	private void loadTransformationMatrix(Entity entity) {
 		Matrix4f transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(), entity.getRotX(), entity.getRotY(), entity.getRotZ(), entity.getScale());
 		shader.loadTransformationMatrix(transformationMatrix);
+		shader.loadOffset(entity.getTextureXOffset(), entity.getTextureYOffset());
 	}
 }

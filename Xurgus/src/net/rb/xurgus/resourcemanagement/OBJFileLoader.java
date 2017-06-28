@@ -12,6 +12,7 @@ import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
 import net.rb.xurgus.model.ModelData;
+import net.rb.xurgus.model.Vertex;
 
 /**
  * 

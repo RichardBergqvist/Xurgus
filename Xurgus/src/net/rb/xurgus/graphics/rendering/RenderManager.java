@@ -31,9 +31,9 @@ public class RenderManager {
 	
 	// BLUE SKY R: 0.49F, G: 89, B: 0.98F
 	// GRAY SKY R: 0.5F, G: 0.5F, B: 0.5F
-	private static final float RED = 0.5F;
-	private static final float GREEN = 0.5F;
-	private static final float BLUE = 0.5F;
+	private static final float RED = 0.6F;
+	private static final float GREEN = 0.78F;
+	private static final float BLUE = 0.76F;
 	
 	private Matrix4f projectionMatrix;
 	
@@ -62,16 +62,16 @@ public class RenderManager {
 		glDisable(GL_CULL_FACE);
 	}
 	
-	public void render(Light light, Camera camera) {
+	public void render(List<Light> lights, Camera camera) {
 		prepare();
 		staticShader.start();
-		staticShader.loadLight(light);
 		staticShader.loadViewMatrix(camera);
 		staticShader.loadSkyColor(RED, GREEN, BLUE);
+		staticShader.loadLights(lights);
 		entityRenderer.render(entities);
 		staticShader.stop();
 		terrainShader.start();
-		terrainShader.loadLight(light);
+		terrainShader.loadLights(lights);
 		terrainShader.loadViewMatrix(camera);
 		terrainShader.loadSkyColor(RED, GREEN, BLUE);
 		terrainRenderer.render(terrains);

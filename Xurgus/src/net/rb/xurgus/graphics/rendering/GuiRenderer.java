@@ -25,10 +25,10 @@ public class GuiRenderer {
 	private final Model quad;
 	private GuiShader shader;
 	
-	public GuiRenderer(ResourceLoader loader, GuiShader shader) {
+	public GuiRenderer(ResourceLoader loader) {
 		float[] positions = { -1, 1, -1, -1, 1, 1, 1, -1};
 		this.quad = loader.loadToVAO(positions, 2);
-		this.shader = shader;
+		this.shader = new GuiShader();
 	}
 	
 	public void render(List<GuiTexture> guis) {
@@ -47,10 +47,14 @@ public class GuiRenderer {
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
 		}
 			
-		glDisableVertexAttribArray(0);
-		glDisable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);
 		shader.stop();
+	}
+	
+	public void clean() {
+		shader.clean();
 	}
 }

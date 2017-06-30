@@ -46,6 +46,17 @@ public class ResourceLoader {
 		return new Model(vaoID, indices.length);
 	}
 	
+	public Model loadToVAO(float[] positions, float[] textureCoordinates, float[] normals, float[] tangents, int[] indices) {
+		int vaoID = createVAO();
+		bindIndicesBuffer(indices);
+		storeDataInAttributeList(0, 3, positions);
+		storeDataInAttributeList(1, 2, textureCoordinates);
+		storeDataInAttributeList(2, 3, normals);
+		storeDataInAttributeList(3, 3, tangents);
+		unbindVAO();
+		return new Model(vaoID, indices.length);
+	}
+	
 	public Model loadToVAO(float[] positions, int dimension) {
 		int vaoID = createVAO();
 		storeDataInAttributeList(0, dimension, positions);
@@ -83,7 +94,7 @@ public class ResourceLoader {
 		glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 		
 		for (int i = 0; i < textureFiles.length; i++) {
-			TextureData data = decodeTextureFile("res/textures/skybox/" + textureFiles[i] + ".png");
+			TextureData data = decodeTextureFile("res/textures/environment/skybox/" + textureFiles[i] + ".png");
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, data.getWidth(), data.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, data.getBuffer());
 		}
 		

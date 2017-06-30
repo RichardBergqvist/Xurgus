@@ -7,6 +7,7 @@ import static org.lwjgl.opengl.GL30.*;
 
 import org.lwjgl.util.vector.Matrix4f;
 
+import net.rb.xurgus.entity.Camera;
 import net.rb.xurgus.graphics.shader.SkyboxShader;
 import net.rb.xurgus.model.Model;
 import net.rb.xurgus.resourcemanagement.ResourceLoader;
@@ -74,24 +75,28 @@ public class SkyboxRenderer {
 	private SkyboxShader shader;
 	private float time = 0;
 	
-	public SkyboxRenderer(ResourceLoader loader, SkyboxShader shader, Matrix4f projectionMatrix) {
+	public SkyboxRenderer(ResourceLoader loader, Matrix4f projectionMatrix) {
 		this.cube = loader.loadToVAO(VERTICES, 3);
 		this.texture = loader.loadCubeMap(TEXTURE_FILES);
 		this.nightTexture = loader.loadCubeMap(NIGHT_TEXTURE_FILES);
-		this.shader = shader;
+		this.shader = new SkyboxShader();
 		this.shader.start();
 		this.shader.loadProjectionMatrix(projectionMatrix);
 		this.shader.connectTextureUnits();
 		this.shader.stop();
 	}
 	
-	public void render() {
+	public void render(Camera camera, float r, float g, float b) {
+		shader.start();
+		shader.loadViewMatrix(camera);
+		shader.loadFogColor(r, g, b);
 		glBindVertexArray(cube.getVaoID());
 		glEnableVertexAttribArray(0);
 		bindTextures();
 		glDrawArrays(GL_TRIANGLES, 0, cube.getVertexCount());
 		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);
+		shader.stop();
 	}
 	
 	private void bindTextures() {

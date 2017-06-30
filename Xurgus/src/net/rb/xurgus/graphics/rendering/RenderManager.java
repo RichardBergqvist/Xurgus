@@ -9,15 +9,13 @@ import java.util.Map;
 
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector4f;
 
 import net.rb.xurgus.entity.Camera;
 import net.rb.xurgus.entity.Entity;
 import net.rb.xurgus.entity.Light;
-import net.rb.xurgus.graphics.shader.GuiShader;
-import net.rb.xurgus.graphics.shader.SkyboxShader;
 import net.rb.xurgus.graphics.shader.StaticShader;
 import net.rb.xurgus.graphics.shader.TerrainShader;
-import net.rb.xurgus.graphics.texture.GuiTexture;
 import net.rb.xurgus.model.TexturedModel;
 import net.rb.xurgus.resourcemanagement.ResourceLoader;
 import net.rb.xurgus.world.terrain.Terrain;
@@ -33,11 +31,9 @@ public class RenderManager {
 	private static final float NEAR_PLANE = 0.1F;
 	private static final float FAR_PLANE = 1000;
 	
-	// BLUE SKY R: 0.49F, G: 89, B: 0.98F
-	// GRAY SKY R: 0.5F, G: 0.5F, B: 0.5F
-	private static final float RED = 0.5444F;
-	private static final float GREEN = 0.62F;
-	private static final float BLUE = 0.69F;
+	public static final float RED = 0.5444F;
+	public static final float GREEN = 0.62F;
+	public static final float BLUE = 0.69F;
 	
 	private Matrix4f projectionMatrix;
 	
@@ -46,59 +42,63 @@ public class RenderManager {
 	
 	private TerrainShader terrainShader = new TerrainShader();
 	private TerrainRenderer terrainRenderer;
-	
-	private GuiShader guiShader = new GuiShader();
-	private GuiRenderer guiRenderer;
-	
-	private SkyboxShader skyboxShader = new SkyboxShader();
+
 	private SkyboxRenderer skyboxRenderer;
 	
+	private NormalMappingRenderer normalMapRenderer;
+	
 	private Map<TexturedModel, List<Entity>> entities = new HashMap<TexturedModel, List<Entity>>();
+	private Map<TexturedModel, List<Entity>> normalMapEntities = new HashMap<TexturedModel, List<Entity>>();
 	private List<Terrain> terrains = new ArrayList<Terrain>();
-	private List<GuiTexture> guis = new ArrayList<GuiTexture>();
 	
 	public RenderManager(ResourceLoader loader) {
 		enableCulling();
 		createProjectionMatrix();
 		entityRenderer = new EntityRenderer(staticShader, projectionMatrix);
 		terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
-		guiRenderer = new GuiRenderer(loader, guiShader);
-		skyboxRenderer = new SkyboxRenderer(loader, skyboxShader, projectionMatrix);
+		skyboxRenderer = new SkyboxRenderer(loader, projectionMatrix);
+		normalMapRenderer = new NormalMappingRenderer(projectionMatrix);
 	}
 	
-	public static void enableCulling() {
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
+	public void renderScene(List<Entity> entities, List<Entity> normalEntities, List<Terrain> terrains, List<Light> lights, Camera camera, Vector4f clipPlane) {
+		for (Entity entity : entities)
+			processEntity(entity);
+		
+		for (Entity entity : normalEntities)
+			processNormalMapEntity(entity);
+		
+		for (Terrain terrain : terrains)
+			processTerrain(terrain);
+		
+		render(lights, camera, clipPlane);
 	}
 	
-	public static void disableCulling() {
-		glDisable(GL_CULL_FACE);
-	}
-	
-	public void render(List<Light> lights, Camera camera) {
+	public void render(List<Light> lights, Camera camera, Vector4f clipPlane) {
 		prepare();
 		staticShader.start();
 		staticShader.loadViewMatrix(camera);
 		staticShader.loadSkyColor(RED, GREEN, BLUE);
 		staticShader.loadLights(lights);
+		staticShader.loadClipPlane(clipPlane);
 		entityRenderer.render(entities);
 		staticShader.stop();
+		normalMapRenderer.render(normalMapEntities, clipPlane, lights, camera);
 		terrainShader.start();
-		terrainShader.loadLights(lights);
 		terrainShader.loadViewMatrix(camera);
 		terrainShader.loadSkyColor(RED, GREEN, BLUE);
+		terrainShader.loadLights(lights);
+		terrainShader.loadClipPlane(clipPlane);
 		terrainRenderer.render(terrains);
 		terrainShader.stop();
-		guiRenderer.render(guis);
-		skyboxShader.start();
-		skyboxShader.loadViewMatrix(camera);
-		skyboxShader.loadFogColor(RED, GREEN, BLUE);
-		skyboxRenderer.render();
-		skyboxShader.stop();
+		skyboxRenderer.render(camera, RED, GREEN, BLUE);
 		
 		entities.clear();
+		normalMapEntities.clear();
 		terrains.clear();
-		guis.clear();
+	}
+	
+	public void processTerrain(Terrain terrain) {
+		terrains.add(terrain);
 	}
 	
 	public void processEntity(Entity entity) {
@@ -114,18 +114,31 @@ public class RenderManager {
 		}
 	}
 	
-	public void processTerrain(Terrain terrain) {
-		terrains.add(terrain);
-	}
-	
-	public void processGui(GuiTexture gui) {
-		guis.add(gui);
+	public void processNormalMapEntity(Entity entity) {
+		TexturedModel model = entity.getModel();
+		List<Entity> batch = normalMapEntities.get(model);
+		if (batch != null)
+			batch.add(entity);
+		else {
+			List<Entity> newBatch = new ArrayList<Entity>();
+			newBatch.add(entity);
+			normalMapEntities.put(model, newBatch);
+		}
 	}
 	
 	public void prepare() {
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(RED, GREEN, BLUE, 1);
+	}
+	
+	public static void enableCulling() {
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+	}
+	
+	public static void disableCulling() {
+		glDisable(GL_CULL_FACE);
 	}
 	
 	private void createProjectionMatrix() {
@@ -146,7 +159,10 @@ public class RenderManager {
 	public void clean() {
 		staticShader.clean();
 		terrainShader.clean();
-		guiShader.clean();
-		skyboxShader.clean();
+		normalMapRenderer.clean();
+	}
+	
+	public Matrix4f getProjectionMatrix() {
+		return projectionMatrix;
 	}
 }

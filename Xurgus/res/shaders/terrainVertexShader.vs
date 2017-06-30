@@ -14,12 +14,16 @@ uniform mat4 transformationMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 uniform vec3 lightPosition[4];
+uniform vec4 plane;
 
-const float density = 0.0035;
+const float density = 0;
 const float gradient = 5.0;
 
 void main() {
 	vec4 worldPosition = transformationMatrix * vec4(position, 1.0);
+
+	gl_ClipDistance[0] = dot(worldPosition, plane);
+
 	vec4 positionRelativeToCamera = viewMatrix * worldPosition;
 	gl_Position = projectionMatrix * positionRelativeToCamera;
 	pass_textureCoordinates = textureCoordinates;
@@ -29,7 +33,6 @@ void main() {
 	for (int i = 0; i < 4; i++) {
 		toLightVector[i] = lightPosition[i] - worldPosition.xyz;
 	}
-	
 
 	toCameraVector = (inverse(viewMatrix) * vec4(0.0, 0.0, 0.0, 1.0)).xyz - worldPosition.xyz;
 

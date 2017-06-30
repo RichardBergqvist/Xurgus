@@ -19,8 +19,8 @@ public class SkyboxShader extends ShaderProgram {
 	
     private static final float ROTATE_SPEED = 1;
     
-    private int location_viewMatrix;
     private int location_projectionMatrix;
+    private int location_viewMatrix;
     private int location_fogColor;
     private int location_cubeMap;
     private int location_cubeMap2;
@@ -39,8 +39,8 @@ public class SkyboxShader extends ShaderProgram {
 
 	@Override
 	protected void getAllUniformLocations() {
-		location_viewMatrix = getUniformLocation("viewMatrix");
 		location_projectionMatrix = getUniformLocation("projectionMatrix");
+		location_viewMatrix = getUniformLocation("viewMatrix");
 		location_fogColor = getUniformLocation("fogColor");
 		location_cubeMap = getUniformLocation("cubeMap");
 		location_cubeMap2 = getUniformLocation("cubeMap2");
@@ -62,7 +62,7 @@ public class SkyboxShader extends ShaderProgram {
 	}
 	
 	public void loadFogColor(float r, float g, float b) {
-		loadVector3f(location_fogColor, new Vector3f(r, g, b));
+		loadVector(location_fogColor, new Vector3f(r, g, b));
 	}
 	
 	public void loadBlendFactor(float blend) {

@@ -8,6 +8,7 @@ package net.rb.xurgus.graphics.texture;
 public class ModelTexture {
 
 	private int textureID;
+	private int normalMap;
 	
 	private float shineDamper = 1;
 	private float reflectivity = 0;
@@ -23,6 +24,14 @@ public class ModelTexture {
 	
 	public int getTextureID() {
 		return textureID;
+	}
+	
+	public void setNormalMap(int normalMap) {
+		this.normalMap = normalMap;
+	}
+	
+	public int getNormalMap() {
+		return normalMap;
 	}
 	
 	public void setShineDamper(float shineDamper) {

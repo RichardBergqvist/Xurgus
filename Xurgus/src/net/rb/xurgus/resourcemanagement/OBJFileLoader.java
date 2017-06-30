@@ -11,7 +11,7 @@ import java.util.List;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
-import net.rb.xurgus.model.ModelData;
+import net.rb.xurgus.model.Model;
 import net.rb.xurgus.model.Vertex;
 
 /**
@@ -21,17 +21,17 @@ import net.rb.xurgus.model.Vertex;
  */
 public class OBJFileLoader {
 
-	private static final String RESOURCE_LOCATION = "res/models/";
+	private static final String RES_LOC = "res/models/";
+	private static final String EXT = ".obj";
 	
-	public static ModelData loadOBJ(String name) {
+	public static Model loadOBJ(String name, ResourceLoader loader) {
 		FileReader fr = null;
-		File file = new File(RESOURCE_LOCATION + name + ".obj");
-		
+		File file = new File(RES_LOC + name + EXT);
 		try {
 			fr = new FileReader(file);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			System.err.println("Could not find obj model file: " + name + ".obj");
+			System.err.println("Could not find obj file: " + name + EXT);
 			System.exit(-1);
 		}
 		
@@ -41,29 +41,25 @@ public class OBJFileLoader {
 		List<Vector2f> textures = new ArrayList<Vector2f>();
 		List<Vector3f> normals = new ArrayList<Vector3f>();
 		List<Integer> indices = new ArrayList<Integer>();
-		
 		try {
 			while (true) {
 				line = reader.readLine();
-				
 				if (line.startsWith("v ")) {
 					String[] currentLine = line.split(" ");
 					Vector3f vertex = new Vector3f((float) Float.valueOf(currentLine[1]), (float) Float.valueOf(currentLine[2]), (float) Float.valueOf(currentLine[3]));
 					Vertex newVertex = new Vertex(vertex, vertices.size());
 					vertices.add(newVertex);
-				}
-				else if (line.startsWith("vt ")) {
+				} else if (line.startsWith("vt ")) {
 					String[] currentLine = line.split(" ");
 					Vector2f texture = new Vector2f((float) Float.valueOf(currentLine[1]), (float) Float.valueOf(currentLine[2]));
 					textures.add(texture);
-				}
-				else if (line.startsWith("vn ")) {
+				} else if (line.startsWith("vn ")) {
 					String[] currentLine = line.split(" ");
 					Vector3f normal = new Vector3f((float) Float.valueOf(currentLine[1]), (float) Float.valueOf(currentLine[2]), (float) Float.valueOf(currentLine[3]));
 					normals.add(normal);
-				}
-				else if (line.startsWith("f "))
+				} else if (line.startsWith("f ")) {
 					break;
+				}
 			}
 			
 			while (line != null && line.startsWith("f ")) {
@@ -71,16 +67,17 @@ public class OBJFileLoader {
 				String[] vertex1 = currentLine[1].split("/");
 				String[] vertex2 = currentLine[2].split("/");
 				String[] vertex3 = currentLine[3].split("/");
-				processVertex(vertex1, vertices, indices);
-				processVertex(vertex2, vertices, indices);
-				processVertex(vertex3, vertices, indices);
+				Vertex v0 = processVertex(vertex1, vertices, indices);
+				Vertex v1 = processVertex(vertex2, vertices, indices);
+				Vertex v2 = processVertex(vertex3, vertices, indices);
+				calculateTangents(v0, v1, v2, textures);
 				line = reader.readLine();
 			}
 			
 			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.err.println("Could not read obj model file: " + name + ".obj");
+			System.err.println("Could not read obj file: " + name + EXT);
 			System.exit(-1);
 		}
 		
@@ -88,82 +85,104 @@ public class OBJFileLoader {
 		float[] vertexArray = new float[vertices.size() * 3];
 		float[] textureArray = new float[vertices.size() * 2];
 		float[] normalArray = new float[vertices.size() * 3];
+		float[] tangentArray = new float[vertices.size() * 3];
 		int[] indexArray = convertIndicesListToArray(indices);
-		float furthest = convertDataToArrays(vertices, textures, normals, vertexArray, textureArray, normalArray);
-	
-		ModelData data = new ModelData(vertexArray, textureArray, normalArray, indexArray, furthest);
-		return data;
+		float furthest = convertDataToArrays(vertices, textures, normals, vertexArray, textureArray, normalArray, tangentArray);
+		
+		return loader.loadToVAO(vertexArray, textureArray, normalArray, indexArray);
 	}
 	
-	private static void processVertex(String[] vertex, List<Vertex> vertices, List<Integer> indices) {
+	private static void calculateTangents(Vertex v0, Vertex v1, Vertex v2, List<Vector2f> textures) {
+		Vector3f delatPos1 = Vector3f.sub(v1.getPosition(), v0.getPosition(), null);
+		Vector3f delatPos2 = Vector3f.sub(v2.getPosition(), v0.getPosition(), null);
+		Vector2f uv0 = textures.get(v0.getTextureIndex());
+		Vector2f uv1 = textures.get(v1.getTextureIndex());
+		Vector2f uv2 = textures.get(v2.getTextureIndex());
+		Vector2f deltaUv1 = Vector2f.sub(uv1, uv0, null);
+		Vector2f deltaUv2 = Vector2f.sub(uv2, uv0, null);
+		float r = 1.0F / (deltaUv1.x * deltaUv2.y - deltaUv1.y * deltaUv2.x);
+		delatPos1.scale(deltaUv2.y);
+		delatPos2.scale(deltaUv1.y);
+		
+		Vector3f tangent = Vector3f.sub(delatPos1, delatPos2, null);
+		tangent.scale(r);
+		v0.addTangent(tangent);
+		v1.addTangent(tangent);
+		v2.addTangent(tangent);
+	}
+	
+	private static Vertex processVertex(String[] vertex, List<Vertex> vertices, List<Integer> indices) {
 		int index = Integer.parseInt(vertex[0]) - 1;
 		Vertex currentVertex = vertices.get(index);
 		int textureIndex = Integer.parseInt(vertex[1]) - 1;
 		int normalIndex = Integer.parseInt(vertex[2]) - 1;
-		
 		if (!currentVertex.isSet()) {
 			currentVertex.setTextureIndex(textureIndex);
 			currentVertex.setNormalIndex(normalIndex);
 			indices.add(index);
-		} else
-			dealWithAlreadyProcessedVertex(currentVertex, textureIndex, normalIndex, vertices, indices);
+			return currentVertex;
+		} else {
+			return dealWithAlreadyProcessedVertex(currentVertex, textureIndex, normalIndex, vertices, indices);
+		}
 	}
 	
-	private static float convertDataToArrays(List<Vertex> vertices, List<Vector2f> textures, List<Vector3f> normals, float[] vertexArray, float[] textureArray, float[] normalArray) {
+	private static int[] convertIndicesListToArray(List<Integer> indices) {
+		int[] indexArray = new int[indices.size()];
+		for (int i = 0; i < indexArray.length; i++)
+			indexArray[i] = indices.get(i);
+		return indexArray;
+	}
+	
+	private static float convertDataToArrays(List<Vertex> vertices, List<Vector2f> textures, List<Vector3f> normals, float[] vertexArray, float[] textureArray, float[] normalArray, float[] tangentArray) {
 		float furthestPoint = 0;
-		
 		for (int i = 0; i < vertices.size(); i++) {
 			Vertex currentVertex = vertices.get(i);
-			
 			if (currentVertex.getLength() > furthestPoint)
 				furthestPoint = currentVertex.getLength();
 			
 			Vector3f position = currentVertex.getPosition();
 			Vector2f textureCoordinate = textures.get(currentVertex.getTextureIndex());
-			Vector3f normalVector = normals.get(currentVertex.getNormalIndex());
+			Vector3f normal = normals.get(currentVertex.getNormalIndex());
+			Vector3f tangent = currentVertex.getAverageTangent();
 			vertexArray[i * 3] = position.x;
 			vertexArray[i * 3 + 1] = position.y;
 			vertexArray[i * 3 + 2] = position.z;
 			textureArray[i * 2] = textureCoordinate.x;
 			textureArray[i * 2 + 1] = 1 - textureCoordinate.y;
-			normalArray[i * 3] = normalVector.x;
-			normalArray[i * 3 + 1] = normalVector.y;
-			normalArray[i * 3 + 2] = normalVector.z;
+			normalArray[i * 3] = normal.x;
+			normalArray[i * 3 + 1] = normal.y;
+			normalArray[i * 3 + 2] = normal.z;
+			tangentArray[i * 3] = tangent.x;
+			tangentArray[i * 3 + 1] = tangent.y;
+			tangentArray[i * 3 + 2] = tangent.z;
 		}
 		
 		return furthestPoint;
 	}
 	
-	private static int[] convertIndicesListToArray(List<Integer> indices) {
-		int[] indexArray = new int[indices.size()];
-		
-		for (int i = 0; i < indexArray.length; i++)
-			indexArray[i] = indices.get(i);
-		
-		return indexArray;
-	}
-	
-	private static void dealWithAlreadyProcessedVertex(Vertex previousVertex, int newTextureIndex, int newNormalIndex, List<Vertex> vertices, List<Integer> indices) {
-		if (previousVertex.hasSameTextureAndNormal(newTextureIndex, newNormalIndex))
+	private static Vertex dealWithAlreadyProcessedVertex(Vertex previousVertex, int newTextureIndex, int newNormalIndex, List<Vertex> vertices, List<Integer> indices) {
+		if (previousVertex.hasSameTextureAndNormal(newTextureIndex, newNormalIndex)) {
 			indices.add(previousVertex.getIndex());
-		else {
+			return previousVertex;
+		} else {
 			Vertex anotherVertex = previousVertex.getDuplicateVertex();
-		
-			if (anotherVertex != null)
-				dealWithAlreadyProcessedVertex(anotherVertex, newTextureIndex, newNormalIndex, vertices, indices);
-			else {
+			if (anotherVertex != null) {
+				return dealWithAlreadyProcessedVertex(anotherVertex, newTextureIndex, newNormalIndex, vertices, indices); 
+			} else {
 				Vertex duplicateVertex = new Vertex(previousVertex.getPosition(), vertices.size());
 				duplicateVertex.setTextureIndex(newTextureIndex);
 				duplicateVertex.setNormalIndex(newNormalIndex);
 				previousVertex.setDuplicateVertex(duplicateVertex);
 				vertices.add(duplicateVertex);
 				indices.add(duplicateVertex.getIndex());
+				return duplicateVertex;
 			}
 		}
 	}
 	
 	private static void removeUnusedVertices(List<Vertex> vertices) {
 		for (Vertex vertex : vertices) {
+			vertex.averageTangents();
 			if (!vertex.isSet()) {
 				vertex.setTextureIndex(0);
 				vertex.setNormalIndex(0);

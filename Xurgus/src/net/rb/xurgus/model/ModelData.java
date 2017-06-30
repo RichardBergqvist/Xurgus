@@ -10,13 +10,15 @@ public class ModelData {
 	private float[] vertices;
 	private float[] textureCoordinates;
 	private float[] normals;
+	private float[] tangents;
 	private int[] indices;
 	private float furthestPoint;
 	
-	public ModelData(float[] vertices, float[] textureCoordinates, float[] normals, int[] indices, float furthestPoint) {
+	public ModelData(float[] vertices, float[] textureCoordinates, float[] normals, float[] tangents, int[] indices, float furthestPoint) {
 		this.vertices = vertices;
 		this.textureCoordinates = textureCoordinates;
 		this.normals = normals;
+		this.tangents = tangents;
 		this.indices = indices;
 		this.furthestPoint = furthestPoint;
 	}
@@ -31,6 +33,10 @@ public class ModelData {
 	
 	public float[] getNormals() {
 		return normals;
+	}
+	
+	public float[] getTangents() {
+		return tangents;
 	}
 	
 	public int[] getIndices() {

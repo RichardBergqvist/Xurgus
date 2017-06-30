@@ -34,6 +34,10 @@ public class Camera {
 		yaw = 180 - (player.getRotY() + angleAroundPlayer);
 	}
 	
+	public void invertPitch(){
+        this.pitch = -pitch;
+    }
+	
 	private void calculateCameraPosition(float horizontalDistance, float verticalDistance) {
 		float theta = player.getRotY() + angleAroundPlayer;
 		float offsetX = (float) (horizontalDistance * Math.sin(Math.toRadians(theta)));

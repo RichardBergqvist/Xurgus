@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import net.rb.xurgus.entity.Camera;
 import net.rb.xurgus.entity.Light;
@@ -35,6 +36,7 @@ public class TerrainShader extends ShaderProgram {
 	private int location_lightPosition[];
 	private int location_lightColor[];
 	private int location_attenuation[];
+	private int location_plane;
 	
 	public TerrainShader() {
 		super(VERTEX_FILE, FRAGMENT_FILE);
@@ -60,6 +62,7 @@ public class TerrainShader extends ShaderProgram {
 		location_gTexture = getUniformLocation("gTexture");
 		location_bTexture = getUniformLocation("bTexture");
 		location_blendMap = getUniformLocation("blendMap");
+		location_plane = getUniformLocation("plane");
 		
 		location_lightPosition = new int[MAX_LIGHTS];
 		location_lightColor = new int[MAX_LIGHTS];
@@ -90,21 +93,25 @@ public class TerrainShader extends ShaderProgram {
 	}
 	
 	public void loadSkyColor(float r, float g, float b) {
-		loadVector3f(location_skyColor, new Vector3f(r, g, b));
+		loadVector(location_skyColor, new Vector3f(r, g, b));
 	}
 	
 	public void loadLights(List<Light> lights) {
 		for (int i = 0; i < MAX_LIGHTS; i++) {
 			if (i < lights.size()) {
-				loadVector3f(location_lightPosition[i], lights.get(i).getPosition());
-				loadVector3f(location_lightColor[i], lights.get(i).getColor());
-				loadVector3f(location_attenuation[i], lights.get(i).getAttenuation());
+				loadVector(location_lightPosition[i], lights.get(i).getPosition());
+				loadVector(location_lightColor[i], lights.get(i).getColor());
+				loadVector(location_attenuation[i], lights.get(i).getAttenuation());
 			} else {
-				loadVector3f(location_lightPosition[i], new Vector3f(0, 0, 0));
-				loadVector3f(location_lightColor[i], new Vector3f(0, 0, 0));
-				loadVector3f(location_attenuation[i], new Vector3f(1, 0, 0));
+				loadVector(location_lightPosition[i], new Vector3f(0, 0, 0));
+				loadVector(location_lightColor[i], new Vector3f(0, 0, 0));
+				loadVector(location_attenuation[i], new Vector3f(1, 0, 0));
 			}
 		}
+	}
+	
+	public void loadClipPlane(Vector4f plane) {
+		loadVector(location_plane, plane);
 	}
 	
 	public void connectTextureUnits() {

@@ -22,7 +22,7 @@ import net.rb.xurgus.util.Maths;
  */
 public class Terrain {
 
-	private static final float SIZE = 800;
+	private static final float SIZE = 150;
 	private static final float MAX_HEIGHT = 40;
 	private static final float MAX_PIXEL_COLOR = 256 * 256 * 256;
 	

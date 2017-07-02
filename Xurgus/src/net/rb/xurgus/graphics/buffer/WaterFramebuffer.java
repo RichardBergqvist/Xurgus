@@ -1,4 +1,4 @@
-package net.rb.xurgus.util;
+package net.rb.xurgus.graphics.buffer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL14.*;
@@ -14,7 +14,7 @@ import org.lwjgl.opengl.Display;
  * @author Richard Bergqvist
  *
  */
-public class WaterFramebuffers {
+public class WaterFramebuffer {
 
 	protected static final int REFLECTION_WIDTH = 320;
     private static final int REFLECTION_HEIGHT = 180;
@@ -30,7 +30,7 @@ public class WaterFramebuffers {
     private int refractionTexture;
     private int refractionDepthTexture;
  
-    public WaterFramebuffers() {
+    public WaterFramebuffer() {
         initialiseReflectionFramebuffer();
         initialiseRefractionFramebuffer();
     }

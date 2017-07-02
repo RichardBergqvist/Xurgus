@@ -10,7 +10,7 @@ uniform float blendFactor;
 uniform vec3 fogColor;
 
 const float lowerLimit = 0.0;
-const float upperLimit = 50.0;
+const float upperLimit = 30.0;
 
 void main() {
 	vec4 texture1 = texture(cubeMap, textureCoordinates);

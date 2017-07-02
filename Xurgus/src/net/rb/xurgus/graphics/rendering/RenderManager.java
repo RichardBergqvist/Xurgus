@@ -27,13 +27,15 @@ import net.rb.xurgus.world.terrain.Terrain;
  */
 public class RenderManager {
 	
-	private static final float FOV = 70;
-	private static final float NEAR_PLANE = 0.1F;
-	private static final float FAR_PLANE = 1000;
+	public static final float FOV = 70;
+	public static final float NEAR_PLANE = 0.1F;
+	public static final float FAR_PLANE = 1000;
 	
 	public static final float RED = 0.5444F;
 	public static final float GREEN = 0.62F;
 	public static final float BLUE = 0.69F;
+	
+	private static ResourceLoader loader;
 	
 	private Matrix4f projectionMatrix;
 	
@@ -58,6 +60,7 @@ public class RenderManager {
 		terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
 		skyboxRenderer = new SkyboxRenderer(loader, projectionMatrix);
 		normalMapRenderer = new NormalMappingRenderer(projectionMatrix);
+		TextRenderer.init(loader);
 	}
 	
 	public void renderScene(List<Entity> entities, List<Entity> normalEntities, List<Terrain> terrains, List<Light> lights, Camera camera, Vector4f clipPlane) {
@@ -69,8 +72,9 @@ public class RenderManager {
 		
 		for (Terrain terrain : terrains)
 			processTerrain(terrain);
-		
+
 		render(lights, camera, clipPlane);
+		TextRenderer.render();
 	}
 	
 	public void render(List<Light> lights, Camera camera, Vector4f clipPlane) {
@@ -91,14 +95,10 @@ public class RenderManager {
 		terrainRenderer.render(terrains);
 		terrainShader.stop();
 		skyboxRenderer.render(camera, RED, GREEN, BLUE);
-		
+
 		entities.clear();
 		normalMapEntities.clear();
 		terrains.clear();
-	}
-	
-	public void processTerrain(Terrain terrain) {
-		terrains.add(terrain);
 	}
 	
 	public void processEntity(Entity entity) {
@@ -126,6 +126,10 @@ public class RenderManager {
 		}
 	}
 	
+	public void processTerrain(Terrain terrain) {
+		terrains.add(terrain);
+	}
+	
 	public void prepare() {
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -142,12 +146,12 @@ public class RenderManager {
 	}
 	
 	private void createProjectionMatrix() {
+		projectionMatrix = new Matrix4f();
 		float aspectRatio = (float) Display.getWidth() / (float) Display.getHeight();
-		float y_scale = (float) (1 / Math.tan(Math.toRadians(FOV / 2))) * aspectRatio;
+		float y_scale = (float) ((1 / Math.tan(Math.toRadians(FOV / 2))));
 		float x_scale = y_scale / aspectRatio;
 		float frustum_length = FAR_PLANE - NEAR_PLANE;
 		
-		projectionMatrix = new Matrix4f();
 		projectionMatrix.m00 = x_scale;
 		projectionMatrix.m11 = y_scale;
 		projectionMatrix.m22 = -((FAR_PLANE + NEAR_PLANE) / frustum_length);
@@ -160,6 +164,11 @@ public class RenderManager {
 		staticShader.clean();
 		terrainShader.clean();
 		normalMapRenderer.clean();
+		TextRenderer.clean();
+	}
+	
+	public ResourceLoader getResourceLoader() {
+		return loader;
 	}
 	
 	public Matrix4f getProjectionMatrix() {

@@ -66,8 +66,8 @@ public class NormalMappingShader extends ShaderProgram {
         location_lightColour = new int[MAX_LIGHTS];
         location_attenuation = new int[MAX_LIGHTS];
         for(int i=0;i<MAX_LIGHTS;i++){
-            location_lightPositionEyeSpace[i] = getUniformLocation("lightPositionEyeSpace[" + i + "]");
-            location_lightColour[i] = getUniformLocation("lightColour[" + i + "]");
+            location_lightPositionEyeSpace[i] = getUniformLocation("lightPosition[" + i + "]");
+            location_lightColour[i] = getUniformLocation("lightColor[" + i + "]");
             location_attenuation[i] = getUniformLocation("attenuation[" + i + "]");
         }
 	}

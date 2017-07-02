@@ -36,6 +36,21 @@ public class ResourceLoader {
 	private List<Integer> vbos = new ArrayList<Integer>();
 	private List<Integer> textures = new ArrayList<Integer>();
 	
+	public int loadToVAO(float[] positions, float[] textureCoordinates) {
+		int vaoID = createVAO();
+		storeDataInAttributeList(0, 2, positions);
+		storeDataInAttributeList(1, 2, textureCoordinates);
+		unbindVAO();
+		return vaoID;
+	}
+	
+	public Model loadToVAO(float[] positions, int dimension) {
+		int vaoID = createVAO();
+		storeDataInAttributeList(0, dimension, positions);
+		unbindVAO();
+		return new Model(vaoID, positions.length / dimension);
+	}
+	
 	public Model loadToVAO(float[] positions, float[] textureCoordinates, float[] normals, int[] indices) {
 		int vaoID = createVAO();
 		bindIndicesBuffer(indices);
@@ -57,13 +72,6 @@ public class ResourceLoader {
 		return new Model(vaoID, indices.length);
 	}
 	
-	public Model loadToVAO(float[] positions, int dimension) {
-		int vaoID = createVAO();
-		storeDataInAttributeList(0, dimension, positions);
-		unbindVAO();
-		return new Model(vaoID, positions.length / dimension);
-	}
-	
 	public int loadTexture(String name) {
 		Texture texture = null;
 		
@@ -83,9 +91,8 @@ public class ResourceLoader {
 			System.exit(-1);
 		}
 		
-		int textureID = texture.getTextureID();
-		textures.add(textureID);
-		return textureID;
+		textures.add(texture.getTextureID());
+		return texture.getTextureID();
 	}
 	
 	public int loadCubeMap(String[] textureFiles) {
@@ -102,6 +109,29 @@ public class ResourceLoader {
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		textures.add(textureID);
 		return textureID;
+	}
+	
+	public int loadFont(String name) {
+		Texture texture = null;
+		
+		try {
+			texture = TextureLoader.getTexture("PNG", new FileInputStream("res/fonts/" + name + ".png"));
+			
+			glGenerateMipmap(GL_TEXTURE_2D);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.err.println("Could not find image file: " + name + ".png");
+			System.exit(-1);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.err.println("Coult not read image file: " + name + ".png");
+			System.exit(-1);
+		}
+		
+		textures.add(texture.getTextureID());
+		return texture.getTextureID();
 	}
 	
 	private TextureData decodeTextureFile(String name) {
@@ -128,8 +158,8 @@ public class ResourceLoader {
 	
 	private int createVAO() {
 		int vaoID = glGenVertexArrays();
-		vaos.add(vaoID);
 		glBindVertexArray(vaoID);
+		vaos.add(vaoID);
 		return vaoID;
 	}
 	

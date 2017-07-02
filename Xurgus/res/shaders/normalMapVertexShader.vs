@@ -13,7 +13,7 @@ out float visibility;
 uniform mat4 transformationMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
-uniform vec3 lightPositionEyeSpace[4];
+uniform vec3 lightPosition[4];
 uniform float numberOfRows;
 uniform vec2 offset;
 uniform vec4 plane;
@@ -38,14 +38,14 @@ void main() {
 	vec3 norm = normalize(surfaceNormal);
 	vec3 tang = normalize((modelViewMatrix * vec4(tangent, 0.0)).xyz);
 	vec3 bitang = normalize(cross(norm, tang));
-
+  
 	mat3 toTangentSpace = mat3(
 	tang.x, bitang.x, norm.x,
 	tang.y, bitang.y, norm.y,
 	tang.z, bitang.z, norm.z);
 
 	for (int i = 0; i < 4; i++) {
-		toLightVector[i] = toTangentSpace * (lightPositionEyeSpace[i] - positionRelativeToCamera.xyz);
+		toLightVector[i] = toTangentSpace * (lightPosition[i] - positionRelativeToCamera.xyz);
 	}
 
 	toCameraVector = toTangentSpace * (-positionRelativeToCamera.xyz);

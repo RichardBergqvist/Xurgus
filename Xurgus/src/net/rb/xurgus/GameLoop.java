@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.lwjgl.opengl.Display;
+import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -16,6 +17,9 @@ import net.rb.xurgus.entity.Entity;
 import net.rb.xurgus.entity.Light;
 import net.rb.xurgus.entity.Player;
 import net.rb.xurgus.graphics.DisplayManager;
+import net.rb.xurgus.graphics.buffer.WaterFramebuffer;
+import net.rb.xurgus.graphics.font.FontType;
+import net.rb.xurgus.graphics.font.GuiText;
 import net.rb.xurgus.graphics.rendering.GuiRenderer;
 import net.rb.xurgus.graphics.rendering.RenderManager;
 import net.rb.xurgus.graphics.rendering.WaterRenderer;
@@ -31,7 +35,6 @@ import net.rb.xurgus.resourcemanagement.ResourceLoader;
 import net.rb.xurgus.tile.WaterTile;
 import net.rb.xurgus.util.MousePicker;
 import net.rb.xurgus.util.Timer;
-import net.rb.xurgus.util.WaterFramebuffers;
 import net.rb.xurgus.world.terrain.Terrain;
 
 /**
@@ -128,11 +131,14 @@ public class GameLoop {
 	        entities.add(new Entity(rocks, new Vector3f(75, 4.6f, -75), 0, 0, 0, 75));
 		
 		List<Light> lights = new ArrayList<Light>();
-		Light sun = new Light(new Vector3f(10000, 10000, -10000), new Vector3f(1.3F, 1.3F, 1.3F));
+		Light sun = new Light(new Vector3f(1000000, 1500000, -1000000), new Vector3f(1.3F, 1.3F, 1.3F));
 		lights.add(sun);
 	
 		RenderManager renderManager = new RenderManager(loader);
-
+		FontType font = new FontType(loader.loadFont("candara"), "candara");
+		GuiText text = new GuiText("A sample string of text!", 3, font, new Vector2f(0, 0.4F), 1, true);
+		text.setColor(1, 0, 0);
+		
 		TexturedModel playerModel = new TexturedModel(OBJFileLoader.loadOBJ("person", loader), new ModelTexture(loader.loadTexture("entity/player")));
 		
 		Player player = new Player(playerModel, new Vector3f(75, 5, -75), 0, 100, 0, 0.6F);
@@ -144,7 +150,7 @@ public class GameLoop {
 		List<GuiTexture> guis = new ArrayList<GuiTexture>();
 		GuiRenderer guiRenderer = new GuiRenderer(loader);
 		
-		WaterFramebuffers buffers = new WaterFramebuffers();
+		WaterFramebuffer buffers = new WaterFramebuffer();
 		WaterShader waterShader = new WaterShader();
 		WaterRenderer waterRenderer = new WaterRenderer(loader, waterShader, renderManager.getProjectionMatrix(), buffers);
 		List<WaterTile> waters = new ArrayList<WaterTile>();

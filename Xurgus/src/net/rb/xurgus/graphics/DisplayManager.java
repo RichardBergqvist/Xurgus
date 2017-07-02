@@ -16,7 +16,7 @@ import org.lwjgl.opengl.PixelFormat;
 public class DisplayManager {
 
 	public static final String TITLE = "Xurgus";
-	public static final String VERSION = "In-Dev 0.1.2";
+	public static final String VERSION = "In-Dev 0.2.0";
 	private static final int WIDTH = 1280;
 	private static final int HEIGHT = 720;
 	private static final int FPS_CAP = 120;

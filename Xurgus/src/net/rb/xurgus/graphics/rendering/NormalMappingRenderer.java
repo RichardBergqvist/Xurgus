@@ -61,6 +61,7 @@ public class NormalMappingRenderer {
 		glEnableVertexAttribArray(1);
 		glEnableVertexAttribArray(2);
 		glEnableVertexAttribArray(3);
+		
 		ModelTexture texture = model.getTexture();
 		if (texture.getHasTransparency())
 			RenderManager.disableCulling();

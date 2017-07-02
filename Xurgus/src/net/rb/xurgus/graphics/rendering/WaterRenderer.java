@@ -12,13 +12,13 @@ import org.lwjgl.util.vector.Vector3f;
 
 import net.rb.xurgus.entity.Camera;
 import net.rb.xurgus.entity.Light;
+import net.rb.xurgus.graphics.buffer.WaterFramebuffer;
 import net.rb.xurgus.graphics.shader.WaterShader;
 import net.rb.xurgus.model.Model;
 import net.rb.xurgus.resourcemanagement.ResourceLoader;
 import net.rb.xurgus.tile.WaterTile;
 import net.rb.xurgus.util.Maths;
 import net.rb.xurgus.util.Timer;
-import net.rb.xurgus.util.WaterFramebuffers;
 
 /**
  * 
@@ -33,14 +33,14 @@ public class WaterRenderer {
 	
 	private Model quad;
 	private WaterShader shader;
-	private WaterFramebuffers fbos;
+	private WaterFramebuffer fbos;
 	
 	private float moveFactor = 0;
 	
 	private int dudvTexture;
 	private int normalMap;
 	
-	public WaterRenderer(ResourceLoader loader, WaterShader shader, Matrix4f projectionMatrix, WaterFramebuffers fbos) {
+	public WaterRenderer(ResourceLoader loader, WaterShader shader, Matrix4f projectionMatrix, WaterFramebuffer fbos) {
 		this.shader = shader;
 		this.shader.start();
 		this.shader.loadProjectionMatrix(projectionMatrix);

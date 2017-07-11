@@ -20,7 +20,7 @@ public class ParticleTexture extends Texture {
 		return numberOfRows;
 	}
 	
-	public boolean useAdditiveBlending() {
+	public boolean isAdditive() {
 		return additive;
 	}
 }

@@ -6,6 +6,7 @@ import static org.lwjgl.opengl.GL14.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL33.*;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -167,12 +168,40 @@ public class ResourceLoader {
 		glBindVertexArray(0);		
 	}
 	
+	public int createEmptyVBO(int floatCount) {
+		int vbo = glGenBuffers();
+		vbos.add(vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, floatCount * 4, GL_STREAM_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		return vbo;
+	}
+	
+	public void updateVBO(int vbo, float[] data, FloatBuffer buffer) {
+		buffer.clear();
+		buffer.put(data);
+		buffer.flip();
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, buffer.capacity() * 4, GL_STREAM_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+	
 	private void bindIndicesBuffer(int[] indices) {
 		int vboID = glGenBuffers();
 		vbos.add(vboID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboID);
 		IntBuffer buffer = storeDataInIntBuffer(indices);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
+	}
+	
+	public void addInstancedAttribute(int vao, int vbo, int attribute, int dataSize, int instancedDataLength, int offset) {
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBindVertexArray(vao);
+		glVertexAttribPointer(attribute, dataSize, GL_FLOAT, false, instancedDataLength * 4, offset * 4);
+		glVertexAttribDivisor(attribute, 1);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 	}
 	
 	private void storeDataInAttributeList(int attribute, int size, float[] data) {

@@ -23,13 +23,19 @@ public class Particle {
 	private float life;
 	private float rotation;
 	private float scale;
+
+	private boolean alive = false;
 	
 	private Vector2f textureOffset1 = new Vector2f();
 	private Vector2f textureOffset2 = new Vector2f();
 	private float blend;
+	private float distance;
+
+	private Vector3f reusableChange = new Vector3f();
 	
 	private float elapsedTime = 0;
-	private float distance;
+	
+	public Particle() {}
 	
 	public Particle(ParticleTexture texture, Vector3f position, Vector3f velocity, float gravity, float life, float rotation, float scale) {
 		this.texture = texture;
@@ -39,17 +45,17 @@ public class Particle {
 		this.life = life;
 		this.rotation = rotation;
 		this.scale = scale;
-		ParticleRenderManager.addParticle(this);
+		this.alive = true;
 	}
 	
 	public boolean update(Camera camera) {
 		velocity.y += Player.GRAVITY * gravity * Timer.getFrameTimeAsSeconds();
 		
-		Vector3f change = new Vector3f(velocity);
-		change.scale(Timer.getFrameTimeAsSeconds());
-		Vector3f.add(change, position, position);
-		distance = Vector3f.sub(camera.getPosition(), position, null).lengthSquared();
+		reusableChange.set(velocity);
+		reusableChange.scale(Timer.getFrameTimeAsSeconds());
+		Vector3f.add(reusableChange, position, position);
 		updateTextureCoordinateInfo();
+		distance = Vector3f.sub(camera.getPosition(), position, null).lengthSquared();
 		elapsedTime += Timer.getFrameTimeAsSeconds();
 		return elapsedTime < life;
 	}

@@ -1,7 +1,6 @@
 package net.rb.xurgus.graphics.shader;
 
 import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector2f;
 
 /**
  * 
@@ -14,10 +13,7 @@ public class ParticleShader extends ShaderProgram {
 	private static final String FRAGMENT_FILE = "particleFragmentShader";
 	
 	private int location_projectionMatrix;
-	private int location_modelViewMatrix;
-	private int location_textureOffset1;
-	private int location_textureOffset2;
-	private int location_textureCoordinateInfo;
+	private int location_numberOfRows;
 	
 	public ParticleShader() {
 		super(VERTEX_FILE, FRAGMENT_FILE);
@@ -26,28 +22,23 @@ public class ParticleShader extends ShaderProgram {
 	@Override
 	protected void bindAttributes() {
 		bindAttribute(0, "position");
+		bindAttribute(1, "modelViewMatrix");
+		bindAttribute(5, "textureOffsets");
+		bindAttribute(6, "blendFactor");
 	}
 
 	@Override
 	protected void getAllUniformLocations() {
 		location_projectionMatrix = getUniformLocation("projectionMatrix");
-		location_modelViewMatrix = getUniformLocation("modelViewMatrix");
-		location_textureOffset1 = getUniformLocation("textureOffset1");
-		location_textureOffset2 = getUniformLocation("textureOffset2");
-		location_textureCoordinateInfo = getUniformLocation("textureCoordinateInfo");
+		location_numberOfRows = getUniformLocation("numberOfRows");
+		
 	}
 	
 	public void loadProjectionMatrix(Matrix4f projectionMatrix) {
 		loadMatrix(location_projectionMatrix, projectionMatrix);
 	}
 	
-	public void loadModelViewMatrix(Matrix4f modelViewMatrix) {
-		loadMatrix(location_modelViewMatrix, modelViewMatrix);
-	}
-	
-	public void loadTextureCoordinateInfo(Vector2f offset1, Vector2f offset2, float numberOfRows, float blend) {
-		loadVector(location_textureOffset1, offset1);
-		loadVector(location_textureOffset2, offset2);
-		loadVector(location_textureCoordinateInfo, new Vector2f(numberOfRows, blend));
+	public void loadNumberOfRows(float numberOfRows) {
+		loadFloat(location_numberOfRows, numberOfRows);
 	}
 }

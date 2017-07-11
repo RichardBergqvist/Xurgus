@@ -58,6 +58,7 @@ public class RenderManager {
 		terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
 		skyboxRenderer = new SkyboxRenderer(loader, projectionMatrix);
 		normalMapRenderer = new NormalMappingRenderer(projectionMatrix);
+		ParticleRenderManager.initialize(loader, projectionMatrix);
 	}
 	
 	public void renderScene(List<Entity> entities, List<Entity> normalEntities, List<Terrain> terrains, List<Light> lights, Camera camera, Vector4f clipPlane) {
@@ -71,6 +72,7 @@ public class RenderManager {
 			addTerrain(terrain);
 
 		render(lights, camera, clipPlane);
+		update(camera);
 	}
 	
 	public void render(List<Light> lights, Camera camera, Vector4f clipPlane) {
@@ -91,10 +93,15 @@ public class RenderManager {
 		terrainRenderer.render(terrains);
 		terrainShader.stop();
 		skyboxRenderer.render(camera, RED, GREEN, BLUE);
+		ParticleRenderManager.render(camera);
 		
 		entities.clear();
 		normalMapEntities.clear();
 		terrains.clear();
+	}
+	
+	public void update(Camera camera) {
+		ParticleRenderManager.update(camera);
 	}
 	
 	public void addEntity(Entity entity) {
@@ -160,6 +167,7 @@ public class RenderManager {
 		entityShader.clean();
 		terrainShader.clean();
 		normalMapRenderer.clean();
+		ParticleRenderManager.clean();
 	}
 	
 	public Matrix4f getProjectionMatrix() {

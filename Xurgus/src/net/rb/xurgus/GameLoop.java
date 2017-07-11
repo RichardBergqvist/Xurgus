@@ -11,6 +11,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+import net.rb.xurgus.ai.ComplexParticleAI;
 import net.rb.xurgus.entity.Camera;
 import net.rb.xurgus.entity.Entity;
 import net.rb.xurgus.entity.Light;
@@ -24,6 +25,7 @@ import net.rb.xurgus.graphics.rendering.WaterRenderer;
 import net.rb.xurgus.graphics.shader.WaterShader;
 import net.rb.xurgus.graphics.texture.GuiTexture;
 import net.rb.xurgus.graphics.texture.ModelTexture;
+import net.rb.xurgus.graphics.texture.ParticleTexture;
 import net.rb.xurgus.graphics.texture.TerrainTexture;
 import net.rb.xurgus.graphics.texture.TerrainTexturePack;
 import net.rb.xurgus.model.TexturedModel;
@@ -155,11 +157,20 @@ public class GameLoop {
 		WaterTile water = new WaterTile(75, 0, -75);
 		waters.add(water);
 		
+		ParticleTexture particleTexture = new ParticleTexture(loader.loadTexture("particles/particleAtlas"), 4, false);
+		
+		ComplexParticleAI particleAI = new ComplexParticleAI(particleTexture, 40, 10, 0.1F, 1, 1.6F);
+		particleAI.setLifeError(0.1F);
+		particleAI.setSpeedError(0.25F);
+		particleAI.setScaleError(0.5F);
+		particleAI.randomizeRotation();
 		
 		while (!Display.isCloseRequested()) {
 			player.move(terrain);
 			camera.move();
 			picker.update();
+			
+			particleAI.generateParticles(new Vector3f(490, 40, -300));
 			
 			glEnable(GL_CLIP_DISTANCE0);
 			

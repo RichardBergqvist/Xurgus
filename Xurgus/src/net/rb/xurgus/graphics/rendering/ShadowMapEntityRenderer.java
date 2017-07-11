@@ -33,22 +33,22 @@ public class ShadowMapEntityRenderer {
 	public void render(Map<TexturedModel, List<Entity>> entities) {
 		for (TexturedModel model : entities.keySet()) {
 			Model model1 = model.getModel();
-			bindModel(model1);
+			bind(model1);
 			for (Entity entity : entities.get(model)) {
 				loadTransformationMatrix(entity);
 				glDrawElements(GL_TRIANGLES, model1.getVertexCount(), GL_UNSIGNED_INT, 0);
 			}
 		}
 		
-		unbindModel();
+		unbind();
 	}
 	
-	private void bindModel(Model model) {
+	private void bind(Model model) {
 		glBindVertexArray(model.getVaoID());
 		glEnableVertexAttribArray(0);
 	}
 	
-	private void unbindModel() {
+	private void unbind() {
 		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);
 	}

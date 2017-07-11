@@ -54,17 +54,17 @@ public class WaterRenderer {
 	}
 	
 	public void render(List<WaterTile> water, Camera camera, Light light) {
-		prepareTexturedModel(camera, light);
+		bind(camera, light);
 		for (WaterTile tile : water) {
 			Matrix4f matrix = Maths.createTransformationMatrix(new Vector3f(tile.getX(), tile.getY(), tile.getZ()), 0, 0, 0, WaterTile.TILE_SIZE);
 			shader.loadModelMatrix(matrix);
 			glDrawArrays(GL_TRIANGLES, 0, quad.getVertexCount());
 		}
 		
-		unbindTexturedModel();
+		unbind();
 	}
 	
-	private void prepareTexturedModel(Camera camera, Light light) {
+	private void bind(Camera camera, Light light) {
 		shader.start();
 		shader.loadViewMatrix(camera);
 		moveFactor += WAVE_SPEED * Timer.getFrameTimeAsSeconds();
@@ -88,7 +88,7 @@ public class WaterRenderer {
 		
 	}
 	
-	private void unbindTexturedModel() {
+	private void unbind() {
 		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);
 		glDisable(GL_BLEND);

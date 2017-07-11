@@ -5,15 +5,9 @@ package net.rb.xurgus.graphics.texture;
  * @author Richard Bergqvist
  *
  */
-public class TerrainTexture {
+public class TerrainTexture extends Texture {
 
-	private int textureID;
-	
 	public TerrainTexture(int textureID) {
-		this.textureID = textureID;
-	}
-	
-	public int getTextureID() {
-		return textureID;
+		super(textureID);
 	}
 }

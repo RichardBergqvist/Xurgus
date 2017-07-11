@@ -38,7 +38,7 @@ public class TerrainRenderer {
 			prepareTerrain(terrain);
 			loadTransformationMatrix(terrain);
 			glDrawElements(GL_TRIANGLES, terrain.getModel().getVertexCount(), GL_UNSIGNED_INT, 0);
-			unbindTexturedModel();
+			unbind();
 		}
 	}
 	
@@ -50,10 +50,10 @@ public class TerrainRenderer {
 		glEnableVertexAttribArray(2);
 		
 		shader.loadShineVariables(1, 0);
-		bindTextures(terrain);
+		bind(terrain);
 	}
 	
-	private void bindTextures(Terrain terrain) {
+	private void bind(Terrain terrain) {
 		TerrainTexturePack texturePack = terrain.getTexturePack();
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texturePack.getBackgroundTexture().getTextureID());
@@ -67,7 +67,7 @@ public class TerrainRenderer {
 		glBindTexture(GL_TEXTURE_2D, terrain.getBlendMap().getTextureID());
 	}
 	
-	private void unbindTexturedModel() {
+	private void unbind() {
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);

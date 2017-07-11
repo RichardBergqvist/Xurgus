@@ -41,20 +41,20 @@ public class NormalMappingRenderer {
 		shader.start();
 		prepare(clipPlane, lights, camera);
 		for (TexturedModel model : entities.keySet()) {
-			prepareTexturedModel(model);
+			bind(model);
 			List<Entity> batch = entities.get(model);
 			for (Entity entity : batch) {
 				loadTransformationMatrix(entity);
 				glDrawElements(GL_TRIANGLES, model.getModel().getVertexCount(), GL_UNSIGNED_INT, 0);
 			}
 			
-			unbindTexturedModel();
+			unbind();
 		}
 		
 		shader.stop();
 	}
 	
-	private void prepareTexturedModel(TexturedModel model) {
+	private void bind(TexturedModel model) {
 		Model model1 = model.getModel();
 		glBindVertexArray(model1.getVaoID());
 		glEnableVertexAttribArray(0);
@@ -73,7 +73,7 @@ public class NormalMappingRenderer {
 		glBindTexture(GL_TEXTURE_2D, model.getTexture().getNormalMap());
 	}
 	
-	private void unbindTexturedModel() {
+	private void unbind() {
 		RenderManager.enableCulling();
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);

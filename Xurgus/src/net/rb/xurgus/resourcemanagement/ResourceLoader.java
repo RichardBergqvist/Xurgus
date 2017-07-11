@@ -72,22 +72,22 @@ public class ResourceLoader {
 		return new Model(vaoID, indices.length);
 	}
 	
-	public int loadTexture(String name) {
+	public int loadTexture(String fileName) {
 		Texture texture = null;
 		
 		try {
-			texture = TextureLoader.getTexture("PNG", new FileInputStream("res/textures/" + name + ".png"));
+			texture = TextureLoader.getTexture("PNG", new FileInputStream("res/textures/" + fileName + ".png"));
 			
 			glGenerateMipmap(GL_TEXTURE_2D);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -0.4F);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			System.err.println("Could not find image file: " + name + ".png");
+			System.err.println("Could not find image file: " + fileName + ".png");
 			System.exit(-1);
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.err.println("Coult not read image file: " + name + ".png");
+			System.err.println("Coult not read image file: " + fileName + ".png");
 			System.exit(-1);
 		}
 		

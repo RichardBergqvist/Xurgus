@@ -92,14 +92,14 @@ public class SkyboxRenderer {
 		shader.loadFogColor(r, g, b);
 		glBindVertexArray(cube.getVaoID());
 		glEnableVertexAttribArray(0);
-		bindTextures();
+		bind();
 		glDrawArrays(GL_TRIANGLES, 0, cube.getVertexCount());
 		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);
 		shader.stop();
 	}
 	
-	private void bindTextures() {
+	private void bind() {
 		time += Timer.getFrameTimeAsSeconds() * 1000;
 		time %= 24000;
 		

@@ -35,7 +35,7 @@ public class EntityRenderer {
 	
 	public void render(Map<TexturedModel, List<Entity>> entities) {
 		for (TexturedModel model : entities.keySet()) {
-			prepareTexturedModel(model);
+			bind(model);
 			
 			List<Entity> batch = entities.get(model);
 			for (Entity entity : batch) {
@@ -43,11 +43,11 @@ public class EntityRenderer {
 				glDrawElements(GL_TRIANGLES, model.getModel().getVertexCount(), GL_UNSIGNED_INT, 0);
 			}
 			
-			unbindTexturedModel();
+			unbind();
 		}
 	}
 	
-	private void prepareTexturedModel(TexturedModel model) {
+	private void bind(TexturedModel model) {
 		Model model1 = model.getModel();
 		glBindVertexArray(model1.getVaoID());
 		glEnableVertexAttribArray(0);
@@ -65,7 +65,7 @@ public class EntityRenderer {
 		glBindTexture(GL_TEXTURE_2D, model.getTexture().getTextureID());
 	}
 	
-	private void unbindTexturedModel() {
+	private void unbind() {
 		RenderManager.enableCulling();
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);

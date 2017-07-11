@@ -39,10 +39,10 @@ public class Terrain {
 		this.z = gridZ * SIZE;
 		this.texturePack = texturePack;
 		this.blendMap = blendMap;
-		this.model = generateTerrain(loader, heightMap);
+		this.model = generate(loader, heightMap);
 	}
 	
-	private Model generateTerrain(ResourceLoader loader, String heightMap) {
+	private Model generate(ResourceLoader loader, String heightMap) {
 		
 		BufferedImage image = null;
 		try {

@@ -5,9 +5,8 @@ package net.rb.xurgus.graphics.texture;
  * @author Richard Bergqvist
  *
  */
-public class ModelTexture {
+public class ModelTexture extends Texture {
 
-	private int textureID;
 	private int normalMap;
 	
 	private float shineDamper = 1;
@@ -19,11 +18,7 @@ public class ModelTexture {
 	private int numberOfRows = 1;
 	
 	public ModelTexture(int textureID) {
-		this.textureID = textureID;
-	}
-	
-	public int getTextureID() {
-		return textureID;
+		super(textureID);
 	}
 	
 	public void setNormalMap(int normalMap) {

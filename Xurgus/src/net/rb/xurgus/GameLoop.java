@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Random;
 
 import org.lwjgl.opengl.Display;
-import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -18,10 +17,9 @@ import net.rb.xurgus.entity.Light;
 import net.rb.xurgus.entity.Player;
 import net.rb.xurgus.graphics.DisplayManager;
 import net.rb.xurgus.graphics.buffer.WaterFramebuffer;
-import net.rb.xurgus.graphics.font.FontType;
-import net.rb.xurgus.graphics.font.GuiText;
 import net.rb.xurgus.graphics.rendering.GuiRenderer;
 import net.rb.xurgus.graphics.rendering.RenderManager;
+import net.rb.xurgus.graphics.rendering.TextRenderer;
 import net.rb.xurgus.graphics.rendering.WaterRenderer;
 import net.rb.xurgus.graphics.shader.WaterShader;
 import net.rb.xurgus.graphics.texture.GuiTexture;
@@ -49,13 +47,14 @@ public class GameLoop {
 		DisplayManager.create();
 		Timer.create();
 		ResourceLoader loader = new ResourceLoader();
+		TextRenderer.init(loader);
 		
 		// ** TERRAIN TEXTURE PACK STUFF ** \\
 		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture("blocks/grassy"));
 		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture("blocks/mud"));
 		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture("blocks/grass_flowers"));
 		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture("blocks/path"));
-	
+	 
 		TerrainTexturePack texturePack = new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture);
 		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("misc/blendMap"));
 		
@@ -72,15 +71,14 @@ public class GameLoop {
 		TexturedModel bobble = new TexturedModel(OBJFileLoader.loadOBJ("pine", loader), new ModelTexture(loader.loadTexture("models/pine")));
 		bobble.getTexture().setHasTransparency(true);
 		
-		List<Terrain> terrains = new ArrayList<Terrain>();
-		Terrain terrain = new Terrain(0, -1, loader, texturePack, blendMap, "heightmap");
-		terrains.add(terrain);
-		
 		TexturedModel lamp = new TexturedModel(OBJFileLoader.loadOBJ("lamp", loader), new ModelTexture(loader.loadTexture("models/lamp")));
 		lamp.getTexture().setUseFakeLighting(true);
 		
 		List<Entity> entities = new ArrayList<Entity>();
 		List<Entity> normalMapEntities = new ArrayList<Entity>();
+		List<Terrain> terrains = new ArrayList<Terrain>();
+		Terrain terrain = new Terrain(0, -1, loader, texturePack, blendMap, "heightmap");
+		terrains.add(terrain);
 		
 		TexturedModel barrel = new TexturedModel(NormalMappedOBJLoader.loadOBJ("barrel", loader), new ModelTexture(loader.loadTexture("models/barrel")));
 		barrel.getTexture().setNormalMap(loader.loadTexture("misc/barrelNormal"));
@@ -135,9 +133,9 @@ public class GameLoop {
 		lights.add(sun);
 	
 		RenderManager renderManager = new RenderManager(loader);
-		FontType font = new FontType(loader.loadFont("candara"), "candara");
-		GuiText text = new GuiText("A sample string of text!", 3, font, new Vector2f(0, 0.4F), 1, true);
-		text.setColor(1, 0, 0);
+//		FontType font = new FontType(loader.loadFont("candara"), "candara");
+//		GuiText text = new GuiText("A sample string of text!", 3, font, new Vector2f(0, 0.4F), 1, true);
+//		text.setColor(1, 0, 0);
 		
 		TexturedModel playerModel = new TexturedModel(OBJFileLoader.loadOBJ("person", loader), new ModelTexture(loader.loadTexture("entity/player")));
 		
@@ -157,16 +155,15 @@ public class GameLoop {
 		WaterTile water = new WaterTile(75, 0, -75);
 		waters.add(water);
 		
+		
 		while (!Display.isCloseRequested()) {
 			player.move(terrain);
 			camera.move();
 			picker.update();
-			entity.increaseRotation(0, 1, 0);
-			entity2.increaseRotation(0, 1, 0);
-			entity3.increaseRotation(0, 1, 0);
-			glEnable(GL_CLIP_DISTANCE0);
-			buffers.bindReflectionFramebuffer();
 			
+			glEnable(GL_CLIP_DISTANCE0);
+			
+			buffers.bindReflectionFramebuffer();
 			float distance = 2 * (camera.getPosition().y - water.getY());
 			camera.getPosition().y -= distance;
 			camera.invertPitch();
@@ -182,6 +179,7 @@ public class GameLoop {
 			renderManager.renderScene(entities, normalMapEntities, terrains, lights, camera, new Vector4f(0, -1, 0, 100000));
 			waterRenderer.render(waters, camera, sun);
 			guiRenderer.render(guis);
+			TextRenderer.render();
 			
 			DisplayManager.update();
 			Timer.update();
@@ -192,6 +190,7 @@ public class GameLoop {
 		guiRenderer.clean();
 		renderManager.clean();
 		loader.clean();
+		TextRenderer.clean();
 		DisplayManager.close();
 	}
 }

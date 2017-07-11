@@ -23,8 +23,11 @@ public class TerrainShader extends ShaderProgram {
 	private static final int MAX_LIGHTS = 4;
 	
 	private int location_transformationMatrix;
-	private int location_viewMatrix;
 	private int location_projectionMatrix;
+	private int location_viewMatrix;
+	private int location_lightPosition[];
+	private int location_lightColor[];
+	private int location_attenuation[];
 	private int location_shineDamper;
 	private int location_reflectivity;
 	private int location_skyColor;
@@ -33,10 +36,7 @@ public class TerrainShader extends ShaderProgram {
 	private int location_gTexture;
 	private int location_bTexture;
 	private int location_blendMap;
-	private int location_lightPosition[];
-	private int location_lightColor[];
-	private int location_attenuation[];
-	private int location_plane;
+	private int location_clipPlane;
 	
 	public TerrainShader() {
 		super(VERTEX_FILE, FRAGMENT_FILE);
@@ -62,7 +62,7 @@ public class TerrainShader extends ShaderProgram {
 		location_gTexture = getUniformLocation("gTexture");
 		location_bTexture = getUniformLocation("bTexture");
 		location_blendMap = getUniformLocation("blendMap");
-		location_plane = getUniformLocation("plane");
+		location_clipPlane = getUniformLocation("clipPlane");
 		
 		location_lightPosition = new int[MAX_LIGHTS];
 		location_lightColor = new int[MAX_LIGHTS];
@@ -74,17 +74,17 @@ public class TerrainShader extends ShaderProgram {
 		}
 	}
 	
-	public void loadTransformationMatrix(Matrix4f matrix) {
-		loadMatrix(location_transformationMatrix, matrix);
+	public void loadTransformationMatrix(Matrix4f transformationMatrix) {
+		loadMatrix(location_transformationMatrix, transformationMatrix);
 	}
 	
 	public void loadViewMatrix(Camera camera) {
-		Matrix4f matrix = Maths.createViewMatrix(camera);
-		loadMatrix(location_viewMatrix, matrix);
+		Matrix4f viewMatrix = Maths.createViewMatrix(camera);
+		loadMatrix(location_viewMatrix, viewMatrix);
 	}
 	
-	public void loadProjectionMatrix(Matrix4f matrix) {
-		loadMatrix(location_projectionMatrix, matrix);
+	public void loadProjectionMatrix(Matrix4f projectionMatrix) {
+		loadMatrix(location_projectionMatrix, projectionMatrix);
 	}
 	
 	public void loadShineVariables(float shineDamper, float reflectivity) {
@@ -110,8 +110,8 @@ public class TerrainShader extends ShaderProgram {
 		}
 	}
 	
-	public void loadClipPlane(Vector4f plane) {
-		loadVector(location_plane, plane);
+	public void loadClipPlane(Vector4f clipPlane) {
+		loadVector(location_clipPlane, clipPlane);
 	}
 	
 	public void connectTextureUnits() {

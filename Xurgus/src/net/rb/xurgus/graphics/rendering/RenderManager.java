@@ -35,11 +35,9 @@ public class RenderManager {
 	public static final float GREEN = 0.62F;
 	public static final float BLUE = 0.69F;
 	
-	private static ResourceLoader loader;
-	
 	private Matrix4f projectionMatrix;
 	
-	private StaticShader staticShader = new StaticShader();
+	private StaticShader entityShader = new StaticShader();
 	private EntityRenderer entityRenderer;
 	
 	private TerrainShader terrainShader = new TerrainShader();
@@ -56,36 +54,34 @@ public class RenderManager {
 	public RenderManager(ResourceLoader loader) {
 		enableCulling();
 		createProjectionMatrix();
-		entityRenderer = new EntityRenderer(staticShader, projectionMatrix);
+		entityRenderer = new EntityRenderer(entityShader, projectionMatrix);
 		terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
 		skyboxRenderer = new SkyboxRenderer(loader, projectionMatrix);
 		normalMapRenderer = new NormalMappingRenderer(projectionMatrix);
-		TextRenderer.init(loader);
 	}
 	
 	public void renderScene(List<Entity> entities, List<Entity> normalEntities, List<Terrain> terrains, List<Light> lights, Camera camera, Vector4f clipPlane) {
 		for (Entity entity : entities)
-			processEntity(entity);
+			addEntity(entity);
 		
 		for (Entity entity : normalEntities)
-			processNormalMapEntity(entity);
+			addNormalMapEntity(entity);
 		
 		for (Terrain terrain : terrains)
-			processTerrain(terrain);
+			addTerrain(terrain);
 
 		render(lights, camera, clipPlane);
-		TextRenderer.render();
 	}
 	
 	public void render(List<Light> lights, Camera camera, Vector4f clipPlane) {
 		prepare();
-		staticShader.start();
-		staticShader.loadViewMatrix(camera);
-		staticShader.loadSkyColor(RED, GREEN, BLUE);
-		staticShader.loadLights(lights);
-		staticShader.loadClipPlane(clipPlane);
+		entityShader.start();
+		entityShader.loadViewMatrix(camera);
+		entityShader.loadSkyColor(RED, GREEN, BLUE);
+		entityShader.loadLights(lights);
+		entityShader.loadClipPlane(clipPlane);
 		entityRenderer.render(entities);
-		staticShader.stop();
+		entityShader.stop();
 		normalMapRenderer.render(normalMapEntities, clipPlane, lights, camera);
 		terrainShader.start();
 		terrainShader.loadViewMatrix(camera);
@@ -95,13 +91,13 @@ public class RenderManager {
 		terrainRenderer.render(terrains);
 		terrainShader.stop();
 		skyboxRenderer.render(camera, RED, GREEN, BLUE);
-
+		
 		entities.clear();
 		normalMapEntities.clear();
 		terrains.clear();
 	}
 	
-	public void processEntity(Entity entity) {
+	public void addEntity(Entity entity) {
 		TexturedModel model = entity.getModel();
 		List<Entity> batch = entities.get(model);
 		
@@ -114,7 +110,7 @@ public class RenderManager {
 		}
 	}
 	
-	public void processNormalMapEntity(Entity entity) {
+	public void addNormalMapEntity(Entity entity) {
 		TexturedModel model = entity.getModel();
 		List<Entity> batch = normalMapEntities.get(model);
 		if (batch != null)
@@ -126,7 +122,7 @@ public class RenderManager {
 		}
 	}
 	
-	public void processTerrain(Terrain terrain) {
+	public void addTerrain(Terrain terrain) {
 		terrains.add(terrain);
 	}
 	
@@ -161,14 +157,9 @@ public class RenderManager {
 	}
 	
 	public void clean() {
-		staticShader.clean();
+		entityShader.clean();
 		terrainShader.clean();
 		normalMapRenderer.clean();
-		TextRenderer.clean();
-	}
-	
-	public ResourceLoader getResourceLoader() {
-		return loader;
 	}
 	
 	public Matrix4f getProjectionMatrix() {
